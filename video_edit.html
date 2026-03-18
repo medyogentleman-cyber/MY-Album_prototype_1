@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>動画編集 - MYアルバム</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .edit-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: white; }
+        
+        /* Video Preview Area */
+        .preview-area {
+            position: relative; width: 100%; aspect-ratio: 16/9;
+            background-color: #000;
+        }
+        .preview-content {
+            width: 100%; height: 100%; object-fit: cover;
+            /* Placeholder styling replaced with image */
+            background-image: url('images/live.png'); background-size: cover; background-position: center;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .preview-text-overlay {
+            position: absolute; bottom: 40px; width: 100%; text-align: center;
+            font-size: 24px; font-weight: 800; color: white;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+        }
+        .player-controls {
+            position: absolute; bottom: 0; width: 100%; padding: 8px 16px;
+            background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+            display: flex; align-items: center; gap: 8px; color: white; font-size: 10px;
+        }
+        .play-btn {
+            background: var(--primary-color); width: 32px; height: 32px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 14px;
+        }
+
+        /* Tool Row */
+        .toolbar {
+            display: flex; padding: 12px 16px; gap: 16px; overflow-x: auto;
+            background: white; border-bottom: 1px solid var(--border-color);
+            scrollbar-width: none;
+        }
+        .toolbar::-webkit-scrollbar { display: none; }
+        .tool-btn {
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            font-size: 10px; color: var(--text-main); font-weight: 500; min-width: 48px;
+            background: none; border: none; cursor: pointer;
+        }
+        .tool-icon {
+            width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border-color);
+            display: flex; align-items: center; justify-content: center; font-size: 20px;
+        }
+        .tool-btn.active .tool-icon {
+            background: var(--primary-color); color: white; border-color: var(--primary-color);
+        }
+        .daim-tool .tool-icon {
+            border-color: var(--daim-purple); color: var(--daim-purple);
+        }
+
+        /* Timeline Area */
+        .timeline-container {
+            background: #FAFAFA; padding: 16px 0; height: 280px; position: relative;
+            overflow-x: auto; display: flex; flex-direction: column; gap: 8px;
+        }
+        .timeline-playhead {
+            position: absolute; top: 0; bottom: 0; left: 50%; width: 2px;
+            background: var(--primary-color); z-index: 10;
+        }
+        .timeline-playhead::before {
+            content:''; position: absolute; top: 0; left: -4px; width: 0; height: 0;
+            border-left: 5px solid transparent; border-right: 5px solid transparent;
+            border-top: 8px solid var(--primary-color);
+        }
+
+        /* Timeline Tracks */
+        .track-row {
+            display: flex; align-items: center; padding: 0 50%; /* Center playhead start */
+            height: 40px; position: relative;
+        }
+        .track-label {
+            position: absolute; left: 16px; font-size: 10px; font-weight: 700; color: var(--text-sub);
+            width: 40px; z-index: 5; background: rgba(250,250,250,0.8);
+        }
+        .clip {
+            height: 100%; min-width: 80px; border-radius: 4px; background: #85C1E9;
+            margin-right: 2px; border: 2px solid transparent; position: relative;
+            background-size: cover; background-position: center;
+        }
+        .clip.active { border-color: var(--primary-color); }
+        .clip-handle {
+            position: absolute; top: 0; bottom: 0; width: 10px; background: rgba(255,255,255,0.7);
+            display: flex; align-items: center; justify-content: center; font-weight: bold; font-size:8px;
+        }
+        .clip-handle.left { left: 0; border-radius: 2px 0 0 2px; }
+        .clip-handle.right { right: 0; border-radius: 0 2px 2px 0; }
+
+        .track-subtitle .clip { background: #D2B4DE; font-size: 9px; padding: 4px; display:flex; align-items:center; color: white; font-weight: 600; }
+        .track-bgm .clip { background: #73C6B6; font-size: 9px; padding: 4px; color: white; display: flex; align-items: center;}
+        
+        /* Drawer Overlay */
+        .drawer-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4); z-index: 100;
+            display: flex; align-items: flex-end; justify-content: center;
+            opacity: 1; pointer-events: none; /* change via JS to show */
+        }
+        .drawer {
+            background: white; width: 100%; max-width: var(--max-width);
+            border-radius: 16px 16px 0 0; padding: 16px; transform: translateY(0);
+            pointer-events: auto;
+        }
+        .drawer-handle { width: 40px; height: 4px; background: #E5E5EA; border-radius: 2px; margin: 0 auto 16px; }
+
+        .material-tabs { display: flex; border-bottom: 2px solid var(--border-color); margin-bottom: 12px; }
+        .m-tab { flex: 1; text-align: center; padding: 8px; font-size: 14px; font-weight: 600; color: var(--text-sub); }
+        .m-tab.active { color: var(--primary-color); border-bottom: 2px solid var(--primary-color); margin-bottom: -2px; }
+        
+        .material-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; max-height: 300px; overflow-y:auto; }
+        .m-item { height: 100px; background: #EEE; border-radius: 8px; position: relative; }
+        .m-title { position: absolute; bottom: 0; width: 100%; background: rgba(0,0,0,0.5); color: white; font-size: 9px; padding: 4px; border-radius: 0 0 8px 8px;}
+
+        /* Export Modal style inline for prototype */
+        .export-card {
+            background: white; padding: 16px; border-radius: 12px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+            position: fixed; bottom: 0; width: 100%; max-width: var(--max-width); z-index: 50;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        
+        <header class="edit-header">
+            <a href="home.html" class="back-btn" style="font-size:20px;">✕</a>
+            <div class="app-header-title">MYアルバム</div>
+            <div class="text-xs text-sub" style="font-weight:700;">保存</div>
+        </header>
+
+        <!-- Preview -->
+        <div class="preview-area">
+            <div class="preview-content">
+                <!-- Mock Video Image -->
+                <div class="preview-text-overlay">勝人気の友だね！</div>
+            </div>
+            
+            <div class="player-controls">
+                <div style="flex:1; height:4px; background:rgba(255,255,255,0.3); border-radius:2px; position:relative;">
+                    <div style="position:absolute; width: 30%; height:100%; background:var(--primary-color); border-radius:2px;"></div>
+                    <div style="position:absolute; left: 30%; top: -4px; width:12px; height:12px; border-radius:50%; background:var(--primary-color);"></div>
+                </div>
+                <div>0:45 / 2:30</div>
+            </div>
+        </div>
+
+        <!-- Tool Bar -->
+        <div class="toolbar">
+            <button class="tool-btn"><div class="tool-icon" style="color:var(--primary-color); border-color:var(--primary-color);">✂️</div>分割</button>
+            <button class="tool-btn"><div class="tool-icon">⚲</div>トリム</button>
+            <button class="tool-btn active"><div class="tool-icon">T</div>字幕</button>
+            <button class="tool-btn daim-tool"><div class="tool-icon">🎵</div>DAIM STEM</button>
+            <button class="tool-btn"><div class="tool-icon">⏱</div>速度</button>
+            <button class="tool-btn"><div class="tool-icon">✨</div>フィルタ</button>
+            <button class="tool-btn"><div class="tool-icon">🔊</div>音量</button>
+        </div>
+
+        <!-- Timeline -->
+        <div class="timeline-container">
+            <div class="timeline-playhead"></div>
+            
+            <div class="track-row" style="height: 60px;">
+                <div class="track-label" style="top:20px;">動画</div>
+                <div class="clip" style="width: 120px; background-image:url('images/summer.png');"></div>
+                <div class="clip active" style="width: 160px; background-image:url('images/live.png');">
+                    <div class="clip-handle left">||</div>
+                    <div style="text-align:center; color:white; font-size:8px; line-height:60px;">勝人気の友だね！</div>
+                    <div class="clip-handle right">||</div>
+                </div>
+                <div class="clip" style="width: 100px; background-image:url('images/collab.png');"></div>
+            </div>
+
+            <div class="track-row track-subtitle mt-4">
+                <div class="track-label">字幕</div>
+                <div class="clip" style="width: 80px; margin-left:20px;">最高！この瞬間！</div>
+                <div class="clip" style="width: 90px; margin-left:10px;">推しが尊い！</div>
+            </div>
+            
+            <div class="track-row track-bgm">
+                <div class="track-label">BGM</div>
+                <div class="clip" style="width: 300px; margin-left:0px;">
+                     夏の日の思い出 <span style="font-size:6px; margin-left:8px;">||||||||||||||||||||...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Material Drawer (Static mock position like image) -->
+        <div class="drawer" style="position: absolute; bottom: 180px; width: 60%; left: 0; box-shadow: 2px -2px 10px rgba(0,0,0,0.1); border-radius: 12px 12px 0 0;">
+            <div class="drawer-handle" style="margin-left: 10px; margin-top: -6px; width:20px;"></div>
+            <div class="material-tabs" style="margin-top:-10px;">
+                <div class="m-tab">神動画一覧</div>
+                <div class="m-tab active">夏の思い出特集</div>
+            </div>
+            <div style="background:#F0F0F0; border-radius:20px; padding:6px 12px; font-size:12px; margin-bottom:12px; color:var(--text-sub);">
+                🔍 #神回 #夏 #コラボ
+            </div>
+            <div class="material-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="m-item" style="background-image:url('images/live.png'); background-size:cover; background-position:center;"><div class="m-title">神ライブクリップ</div></div>
+                <div class="m-item" style="background-image:url('images/summer.png'); background-size:cover; background-position:center;"><div class="m-title">海デート風</div></div>
+                <div class="m-item" style="background-image:url('images/avatar.png'); background-size:cover; background-position:center;"><div class="m-title">奇跡の笑顔</div></div>
+                <div class="m-item" style="background-image:url('images/collab.png'); background-size:cover; background-position:center;"><div class="m-title">メンバー集合</div></div>
+            </div>
+        </div>
+
+        <!-- Export Action Card -->
+        <div class="export-card">
+            <div class="drawer-handle"></div>
+            <div class="social-row" style="padding:8px 0;">
+                <div class="social-brand">共有アルバムへ投稿</div>
+                <label class="toggle-switch transform scale-75">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="social-row" style="padding:8px 0; border-bottom:none;">
+                <div class="social-brand">インデックスに追加 <span class="badge" style="background:#FFF0E6; color:var(--primary-color);">C2E対象</span></div>
+                <label class="toggle-switch transform scale-75">
+                    <input type="checkbox">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <button class="btn btn-primary mt-4" onclick="location.href='home.html'">書き出し</button>
+        </div>
+
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>インポート - MYアルバム</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .page-header {
+            text-align: center;
+            margin: 24px 0;
+        }
+        .page-title {
+            font-size: 20px; font-weight: 700; margin-bottom: 8px;
+        }
+        .page-desc {
+            font-size: 14px; color: var(--text-sub); line-height: 1.5;
+        }
+        
+        /* Progress Indicator */
+        .progress-indicator {
+            display: flex; align-items: center; justify-content: flex-end;
+            padding: 16px; font-size: 14px; color: var(--text-main); font-weight: 600;
+        }
+        .progress-bar-wrap {
+            width: 60px; height: 6px; background: var(--border-color); border-radius: 3px;
+            margin-right: 12px; overflow: hidden;
+        }
+        .progress-bar-fill {
+            width: 50%; height: 100%; background: var(--primary-color);
+        }
+
+        /* Connections Box */
+        .settings-box {
+            background: white; border-radius: var(--border-radius);
+            padding: 0 16px; margin-bottom: 16px; border: 1px solid var(--border-color);
+        }
+        
+        /* Specific Toggles */
+        .social-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px 0; border-bottom: 1px solid var(--border-color);
+        }
+        .social-row:last-child { border-bottom: none; }
+        .social-brand { display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 500; }
+        
+        .type-selector {
+            display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap;
+        }
+        .type-btn {
+            padding: 6px 16px; border-radius: 20px; border: 1px solid var(--border-color);
+            background: white; font-size: 14px; cursor: pointer;
+        }
+        .type-btn.active { background: #FFF0E6; color: var(--primary-color); border-color: var(--primary-color); }
+
+        /* Verified Box */
+        .verified-box {
+            border: 2px solid var(--primary-color);
+            border-radius: var(--border-radius);
+            padding: 16px;
+            background-color: white;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(255,107,0,0.1);
+        }
+        .verified-header {
+            color: #0075FF; font-weight: 700; font-size: 14px;
+            display: flex; align-items: center; gap: 6px; margin-bottom: 8px;
+        }
+        .verified-title {
+            font-size: 18px; font-weight: 700; margin-bottom: 16px;
+        }
+        
+        /* Web3 Callout */
+        .daim-button {
+            width: 100%; padding: 16px; border-radius: var(--border-radius);
+            background: linear-gradient(135deg, var(--daim-purple) 0%, #6020FF 100%);
+            color: white; font-weight: 700; border: none; cursor: pointer;
+            margin-bottom: 24px; display: flex; align-items: center; justify-content: center; gap: 8px;
+            font-size: 16px; box-shadow: 0 4px 12px rgba(144,64,255,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container" style="background-color: var(--bg-color);">
+        
+        <header class="app-header" style="border-bottom:none; background:transparent;">
+            <div class="logo-text" style="font-size: 18px;">MY<span class="logo-accent">アルバム</span></div>
+            <div class="progress-indicator">
+                <div class="progress-bar-wrap"><div class="progress-bar-fill"></div></div>
+                2/4
+            </div>
+        </header>
+
+        <div class="p-4" style="padding-top: 0;">
+            <div class="page-header">
+                <h1 class="page-title">コンテンツのインポートと登録</h1>
+                <p class="page-desc">あなたのアートワーク、ビデオ、画像をMYアルバムにまとめ、ブロックチェーン上で資産化しましょう。</p>
+            </div>
+
+            <!-- DAIM Integration -->
+            <button class="daim-button">
+                <span>✨ DAIMから直接インポート</span>
+            </button>
+
+            <h3 class="input-label" style="font-size: 12px; color: var(--text-sub); padding-left: 8px;">接続先SNS一覧</h3>
+            <div class="settings-box">
+                <div class="social-row">
+                    <div class="social-brand">▶ YouTube</div>
+                    <label class="toggle-switch transform scale-75">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="social-row">
+                    <div class="social-brand">📷 Instagram</div>
+                    <label class="toggle-switch transform scale-75">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="social-row">
+                    <div class="social-brand">🎵 TikTok</div>
+                    <label class="toggle-switch transform scale-75">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="social-row">
+                    <div class="social-brand">𝕏 X</div>
+                    <label class="toggle-switch transform scale-75">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="social-row">
+                    <div class="social-brand">🌟 SHOWROOM</div>
+                    <label class="toggle-switch transform scale-75">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <h3 class="input-label" style="font-size: 12px; color: var(--text-sub); padding-left: 8px;">インポート設定</h3>
+            <div class="settings-box">
+                <div class="social-row" style="border:none;">
+                    <div class="social-brand" style="font-size:14px; font-weight:400;">
+                        新しいコンテンツを自動同期 ⓘ
+                    </div>
+                    <label class="toggle-switch transform scale-75">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="input-group" style="margin-top: 24px;">
+                <label class="input-label">URLから直接保存する</label>
+                <input type="text" class="input-field" placeholder="https://youtube.com/...">
+            </div>
+
+            <h3 class="input-label">コンテンツタイプ</h3>
+            <div class="type-selector">
+                <button class="type-btn active">動画</button>
+                <button class="type-btn active">画像</button>
+                <button class="type-btn">ライブ</button>
+                <button class="type-btn">AI楽曲</button>
+            </div>
+
+            <div class="verified-box">
+                <div class="verified-header">✓ Verified</div>
+                <div class="verified-title">データ保有者として登録</div>
+                <div style="font-size: 12px; font-weight:700; margin-bottom:8px;">利用規約と同意</div>
+                
+                <div class="checkbox-row">
+                    <input type="checkbox" checked>
+                    <label>利用規約とプライバシーポリシーに同意します。</label>
+                </div>
+                <div class="checkbox-row">
+                    <input type="checkbox" checked>
+                    <label>私がすべてのコンテンツの正当な権利者です。</label>
+                </div>
+                <div class="checkbox-row">
+                    <input type="checkbox">
+                    <label>コンテンツが第三者の権利を侵害していないことを確認します。</label>
+                </div>
+                <p class="text-xs text-sub mt-2" style="padding-left: 32px;">※偽証した場合、D-DMCネットワークによるペナルティが課される可能性があります。</p>
+            </div>
+
+            <button class="btn btn-primary mb-4" onclick="location.href='profile.html'">次へ</button>
+            <button class="btn btn-outline" style="border:none; color:var(--text-sub);" onclick="location.href='home.html'">後で</button>
+
+            <!-- Bottom pad -->
+            <div style="height: 40px;"></div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

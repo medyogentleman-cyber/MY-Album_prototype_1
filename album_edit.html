@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>アルバム作成 - MYアルバム</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .cover-upload {
+            width: 100%; height: 200px;
+            background-color: #E5E5EA;
+            border-radius: var(--border-radius);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: var(--text-sub); border: 2px dashed var(--border-color);
+            margin-bottom: 24px; cursor: pointer;
+        }
+        
+        /* Album Type Selection */
+        .type-cards {
+            display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;
+        }
+        .type-card {
+            border: 2px solid var(--border-color);
+            border-radius: 12px; padding: 16px; background: white;
+            display: flex; align-items: flex-start; gap: 12px; cursor: pointer;
+        }
+        .type-card.active {
+            border-color: var(--primary-color); background: #FFF0E6;
+        }
+        .type-icon { font-size: 24px; }
+        .type-info { flex: 1; }
+        .type-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; display:flex; justify-content:space-between; }
+        .type-desc { font-size: 12px; color: var(--text-sub); line-height: 1.4; }
+        
+        .radio-btn { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border-color); display:flex; align-items:center; justify-content:center; }
+        .type-card.active .radio-btn::after { content:''; width:10px; height:10px; background:var(--primary-color); border-radius:50%; }
+        .type-card.active .radio-btn { border-color: var(--primary-color); }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <a href="home.html" class="back-btn">‹</a>
+            <div class="app-header-title">新規アルバム作成</div>
+            <div style="width: 24px;"></div>
+        </header>
+
+        <div class="p-4">
+            
+            <div class="cover-upload">
+                <div style="font-size:32px; margin-bottom:8px;">📷</div>
+                <div style="font-weight:600;">カバー画像を設定</div>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">アルバムの種別 (Web3)</label>
+                <div class="type-cards">
+                    <div class="type-card" onclick="document.querySelectorAll('.type-card').forEach(c=>c.classList.remove('active')); this.classList.add('active');">
+                        <div class="type-icon">🔒</div>
+                        <div class="type-info">
+                            <div class="type-title">個人用 (非公開) <div class="radio-btn"></div></div>
+                            <div class="type-desc">ウォレット署名でのみアクセス可能な暗号化されたプライベート領域。</div>
+                        </div>
+                    </div>
+                    
+                    <div class="type-card active" onclick="document.querySelectorAll('.type-card').forEach(c=>c.classList.remove('active')); this.classList.add('active');">
+                        <div class="type-icon">🤝</div>
+                        <div class="type-info">
+                            <div class="type-title">共有用 (コミュニティ) <div class="radio-btn"></div></div>
+                            <div class="type-desc">ファン仲間と共同編集し、新しい価値を創出するコラボレーション領域。</div>
+                        </div>
+                    </div>
+                    
+                    <div class="type-card" style="border-color:var(--primary-color);" onclick="document.querySelectorAll('.type-card').forEach(c=>c.classList.remove('active')); this.classList.add('active');">
+                        <div class="type-icon">✨</div>
+                        <div class="type-info">
+                            <div class="type-title" style="color:var(--primary-color);">神アーカイブ申請 <div class="radio-btn"></div></div>
+                            <div class="type-desc">公式キュレーション(C2E)の対象として申請します。厳格な著作権チェックが行われます。</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">タイトル</label>
+                <input type="text" class="input-field" placeholder="例：2024年 夏フェスまとめ">
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">説明文</label>
+                <textarea class="input-field" placeholder="このアルバムのテーマや魅力を語ってください"></textarea>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">タグ</label>
+                <input type="text" class="input-field mb-2" placeholder="スペース区切りで入力 (例: #神回 #ライブ)">
+                <div class="tag-cloud">
+                    <span class="badge badge-outline">#夏フェス ✕</span>
+                    <span class="badge badge-outline">#浴衣 ✕</span>
+                </div>
+            </div>
+
+            <button class="btn btn-primary mt-4" onclick="location.href='home.html'">作成する</button>
+            <div style="height: 40px;"></div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ログイン - MYアルバム</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .login-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 24px;
+            min-height: 100vh;
+            background: linear-gradient(180deg, var(--bg-color) 0%, #FFFFFF 100%);
+        }
+        .hero-image {
+            width: 120px;
+            height: 120px;
+            background-color: var(--primary-light);
+            border-radius: var(--border-radius);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+        }
+        .tagline {
+            text-align: center;
+            margin-bottom: 40px;
+            color: var(--text-sub);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .auth-buttons {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .btn-wallet {
+            background-color: #F6851B; /* Metamask Orange */
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .btn-wallet:hover { background-color: #E2761B; }
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: var(--text-sub);
+            font-size: 12px;
+            margin: 24px 0;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .divider:not(:empty)::before { margin-right: 16px; }
+        .divider:not(:empty)::after { margin-left: 16px; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="login-container">
+            <div class="hero-image">
+               <!-- Placeholder for App Icon -->
+               📚
+            </div>
+            
+            <h1 class="logo-text">MY<span class="logo-accent">アルバム</span></h1>
+            <p class="tagline">
+                散在するデータを「循環する資産」へ。<br>
+                Web3時代のファンキュレーションプラットフォーム
+            </p>
+
+            <div class="auth-buttons">
+                <!-- Data Sovereignty / Web3 Authentication -->
+                <button class="btn btn-wallet" onclick="location.href='home.html'">
+                    🦊 ウォレットでログイン (MetaMask連携)
+                </button>
+                
+                <div class="divider">または</div>
+                
+                <button class="btn btn-primary" onclick="location.href='home.html'">
+                    ✉️ メールアドレスではじめる
+                </button>
+                
+                <button class="btn btn-outline" onclick="location.href='home.html'">
+                    Googleでログイン
+                </button>
+                
+                <button class="btn btn-outline" style="background-color: #000; color: #fff; border:none;" onclick="location.href='home.html'">
+                    𝕏 でログイン
+                </button>
+            </div>
+            
+            <p class="text-xs text-center mt-4" style="color: var(--text-sub); margin-top: 32px;">
+                利用規約 と プライバシーポリシー に同意した上でログインしてください。
+            </p>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
