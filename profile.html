@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>データ保管登録 - MYアルバム</title>
+    <title>プロフィール - MYアルバム</title>
     <link rel="stylesheet" href="styles.css">
     <style>
         .page-title {
@@ -69,12 +69,27 @@
         <!-- Header -->
         <header class="app-header">
             <a href="home.html" class="back-btn">‹</a>
-            <div class="app-header-title">データ保管登録</div>
+            <div class="app-header-title">プロフィール</div>
             <div style="width: 24px;"></div> <!-- spacer -->
         </header>
 
         <div class="p-4">
-            <p class="page-title">クリエイター活動のデータを<br>Web3上で一元管理・資産化しましょう。</p>
+            <!-- Curator Level -->
+            <div style="text-align:center; margin: 16px 0 24px;">
+                <div style="font-size: 13px; font-weight: 800; color: var(--text-sub); margin-bottom: 8px;">あなたのキュレーターレベル</div>
+                <div style="font-size: 32px; font-weight: 900; color: var(--text-main); line-height: 1; margin-bottom: 16px;">
+                    Lv.<span style="color: var(--primary-color); font-size: 56px;">5</span>
+                </div>
+                <div style="background: white; border-radius: 12px; padding: 16px; border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.02); text-align: left;">
+                    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom: 8px;">
+                        <span style="font-size:11px; font-weight:800; color:var(--text-sub);">進行度</span>
+                        <span style="font-size:14px; font-weight:900; color:var(--text-main);">Lv.6 まで残り18%</span>
+                    </div>
+                    <div style="width: 100%; height: 8px; background: #EAE8F2; border-radius: 4px; overflow: hidden;">
+                        <div style="height: 100%; background: var(--primary-color); border-radius: 4px; width: 82%;"></div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Profile Form Card -->
             <div class="card">
@@ -111,139 +126,93 @@
                     <label class="input-label">自己紹介</label>
                     <textarea class="input-field" placeholder="クリエイターとしての活動内容やビジョンなどを入力してください。"></textarea>
                 </div>
-            </div>
 
-            <!-- Web3 Storage UI -->
-            <div class="storage-section">
-                <div class="storage-header">
-                    <div class="storage-title">
-                        <span class="ecosystem-badge bg-ddmc">D-DMC</span> ストレージ状況
-                    </div>
-                    <a href="payment.html" class="storage-limit" style="color:var(--primary-color); text-decoration:none;">🚀 プレミアムへアップグレード</a>
-                </div>
-                
-                <div class="storage-bar-container">
-                    <div class="storage-bar storage-hot" style="width: 40%;"></div>
-                    <div class="storage-bar storage-cold" style="width: 35%;"></div>
-                </div>
-                
-                <div class="storage-metrics">
-                    <div style="display:flex; align-items:center; gap:4px;"><div class="dot dot-hot"></div> HOT DATA: 40GB</div>
-                    <div style="display:flex; align-items:center; gap:4px;"><div class="dot dot-cold"></div> COLD DATA: 35GB</div>
-                    <div>空き: 25GB</div>
-                </div>
-                <p class="text-xs text-sub mt-4">※HOTデータは高速アクセス枠、COLDデータは長期保存アーカイブ枠です。</p>
-            </div>
-
-            <!-- Import Settings -->
-            <h2 style="font-size: 16px; display:flex; align-items:center; gap:8px;" class="mb-4">
-                <span style="width:4px; height:16px; background:var(--primary-color); display:inline-block; border-radius:2px;"></span>
-                コンテンツインポート設定
-            </h2>
-
-            <div class="settings-grid">
-                <!-- YouTube -->
-                <div class="social-card">
-                    <div class="social-header">
-                        <span>▶ YouTube</span>
-                        <label class="toggle-switch transform scale-75" style="transform: scale(0.8); transform-origin: right;">
-                            <input type="checkbox" checked>
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                    <div class="sync-toggle">
-                        <label class="toggle-switch" style="transform: scale(0.7); transform-origin: left;">
-                            <input type="checkbox" checked>
-                            <span class="slider"></span>
-                        </label>
-                        <span>自動 / 手動</span>
+                <div class="input-group">
+                    <label class="input-label">ログインアカウント (認証方法)</label>
+                    <div style="display: flex; align-items: center; gap: 8px; background: #FFF; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                        <img src="images/icon/Google.png" alt="Google" style="width: 20px; height: 20px; object-fit: contain;">
+                        <span style="font-size: 14px; font-weight: 700; color: var(--text-main);">Googleでログイン</span>
                     </div>
                 </div>
 
-                <!-- Instagram -->
-                <div class="social-card">
-                    <div class="social-header">
-                        <span>📷 Instagram</span>
-                        <label class="toggle-switch transform scale-75" style="transform: scale(0.8); transform-origin: right;">
-                            <input type="checkbox" checked>
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                    <div class="sync-toggle">
-                        <label class="toggle-switch" style="transform: scale(0.7); transform-origin: left;">
-                            <input type="checkbox" checked>
-                            <span class="slider"></span>
-                        </label>
-                        <span>自動 / 手動</span>
-                    </div>
-                </div>
-
-                <!-- TikTok -->
-                <div class="social-card">
-                    <div class="social-header">
-                        <span>🎵 TikTok</span>
-                        <label class="toggle-switch transform scale-75" style="transform: scale(0.8); transform-origin: right;">
-                            <input type="checkbox">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- X -->
-                <div class="social-card">
-                    <div class="social-header">
-                        <span>𝕏 X</span>
-                        <label class="toggle-switch transform scale-75" style="transform: scale(0.8); transform-origin: right;">
-                            <input type="checkbox">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                </div>
-                
-                <!-- SHOWROOM (Web3 Requirement) -->
-                <div class="social-card" style="grid-column: span 2;">
-                    <div class="social-header">
-                        <span>🌟 SHOWROOM 連携</span>
-                        <label class="toggle-switch transform scale-75" style="transform: scale(0.8); transform-origin: right;">
-                            <input type="checkbox">
-                            <span class="slider"></span>
-                        </label>
+                <div class="input-group">
+                    <label class="input-label">登録メールアドレス</label>
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; background: #F8F8F8; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);">
+                        <span style="font-size: 14px; font-weight: 700; color: var(--text-main);">user@example.com</span>
+                        <button class="btn btn-outline btn-sm" style="width: auto; padding: 4px 12px; font-weight: 800;" onclick="openEmailChangeModal()">変更</button>
                     </div>
                 </div>
             </div>
 
-            <h3 class="input-label">インポートするコンテンツの種類</h3>
-            <div class="type-selector">
-                <button class="type-btn active">動画</button>
-                <button class="type-btn active">画像</button>
-                <button class="type-btn">ライブ</button>
-                <button class="type-btn">AI楽曲</button>
-            </div>
 
             <button class="btn btn-primary" onclick="location.href='home.html'">設定を保存して次へ</button>
+
+            <!-- Email Change Auth Flow Modal -->
+            <div id="email-modal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:200; align-items:center; justify-content:center; padding:20px;">
+                <div class="modal-content" style="background:white; border-radius:16px; width:100%; max-width:360px; padding:24px; position:relative; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+                    <button onclick="closeEmailChangeModal()" style="position:absolute; top:16px; right:16px; background:none; border:none; font-size:24px; color:var(--text-sub); cursor:pointer;">&times;</button>
+                    
+                    <!-- Step 1: Input -->
+                    <div id="email-step-1">
+                        <h3 style="font-size:16px; font-weight:900; margin-bottom:8px; text-align:center;">メールアドレスの変更</h3>
+                        <p style="font-size:11px; color:var(--text-sub); margin-bottom:20px; text-align:center; line-height:1.4;">新しいメールアドレスを入力してください。<br>確認用の認証メールが送信されます。</p>
+                        
+                        <div class="input-group" style="margin-bottom: 12px;">
+                            <label class="input-label">新しいメールアドレス</label>
+                            <input type="email" id="new-email" class="input-field" placeholder="new@example.com">
+                        </div>
+                        <div class="input-group" style="margin-bottom: 24px;">
+                            <label class="input-label">新しいメールアドレス（確認用）</label>
+                            <input type="email" id="confirm-email" class="input-field" placeholder="new@example.com">
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="submitEmailChange()">認証メールを送信</button>
+                    </div>
+                    
+                    <!-- Step 2: Verification Sent -->
+                    <div id="email-step-2" style="display:none; text-align:center; padding: 16px 0;">
+                        <div style="font-size:48px; margin-bottom:16px;">✉️</div>
+                        <h3 style="font-size:18px; font-weight:900; margin-bottom:12px;">認証メールを送信しました</h3>
+                        <p style="font-size:12px; color:var(--text-sub); line-height:1.6; margin-bottom:24px;">
+                            入力された新しいメールアドレス宛に変更確認のメールを送信しました。<br>
+                            メール内の<b>「認証リンク」</b>をクリックして、変更処理を完了してください。
+                        </p>
+                        <button class="btn btn-primary" onclick="closeEmailChangeModal()">閉じる</button>
+                    </div>
+                </div>
+            </div>
+
         </div>
-        
-        <!-- Bottom Navigation -->
-        <nav class="bottom-nav">
-             <a href="home.html" class="nav-item">
-                 <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-                 ホーム
-             </a>
-             <a href="search.html" class="nav-item">
-                 <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-                 検索
-             </a>
-             <a href="album_edit.html" class="nav-fab">+</a>
-             <a href="payment.html" class="nav-item">
-                 <svg viewBox="0 0 24 24"><path d="M21 18v1H3v-1h18zM3 13h18v-2H3v2zm0-5h18V6H3v2z"/></svg>
-                 収益
-             </a>
-             <a href="profile.html" class="nav-item active">
-                 <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                 👤
-             </a>
-         </nav>
     </div>
+    
+    <script>
+        function openEmailChangeModal() {
+            document.getElementById('email-modal').style.display = 'flex';
+            document.getElementById('email-step-1').style.display = 'block';
+            document.getElementById('email-step-2').style.display = 'none';
+            document.getElementById('new-email').value = '';
+            document.getElementById('confirm-email').value = '';
+        }
+        function closeEmailChangeModal() {
+            document.getElementById('email-modal').style.display = 'none';
+        }
+        function submitEmailChange() {
+            const e1 = document.getElementById('new-email').value;
+            const e2 = document.getElementById('confirm-email').value;
+            if(!e1 || !e2) {
+                alert('新しいメールアドレスを入力してください。');
+                return;
+            }
+            if(e1 !== e2) {
+                alert('確認用メールアドレスが一致しません。再度入力してください。');
+                return;
+            }
+            // Transition to Step 2
+            document.getElementById('email-step-1').style.display = 'none';
+            document.getElementById('email-step-2').style.display = 'block';
+        }
+    </script>
     <script src="app.js"></script>
+    <script src="nav.js"></script>
 </body>
 </html>

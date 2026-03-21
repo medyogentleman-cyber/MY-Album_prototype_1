@@ -81,9 +81,102 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
+
+  // 6. Search Page Filtering
+  const initSearchFilter = () => {
+    const searchInput = document.getElementById('searchInput');
+    if (!searchInput) return;
+
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      
+      // Filter Albums
+      const albumItems = document.querySelectorAll('.search-album-item');
+      albumItems.forEach(item => {
+        const text = item.getAttribute('data-text')?.toLowerCase() || '';
+        item.style.display = text.includes(query) ? 'flex' : 'none';
+      });
+
+      // Filter Creators
+      const creatorItems = document.querySelectorAll('.search-creator-item');
+      creatorItems.forEach(item => {
+        const text = item.getAttribute('data-text')?.toLowerCase() || '';
+        item.style.display = text.includes(query) ? 'flex' : 'none';
+      });
+    });
+  };
+
+  // 7. Global Follow Button Toggle
+  const initFollowBtns = () => {
+    const followBtns = document.querySelectorAll('.follow-toggle-btn');
+    followBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation(); // prevent clicking the card underneath
+        if (btn.classList.contains('btn-primary')) {
+          btn.classList.replace('btn-primary', 'btn-outline');
+          btn.innerText = '＋ フォロー';
+        } else {
+          btn.classList.replace('btn-outline', 'btn-primary');
+          btn.innerText = 'フォロー中';
+        }
+      });
+    });
+  };
+
+  // 8. Editable Title and Avatar
+  const initEditableElements = () => {
+    // Title
+    const titleEl = document.getElementById('editable-hub-title');
+    if (titleEl) {
+      titleEl.addEventListener('click', () => {
+        const currentText = titleEl.innerText;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = currentText;
+        input.className = 'input-field';
+        input.style.fontSize = '20px';
+        input.style.fontWeight = '800';
+        input.style.textAlign = 'center';
+        input.style.width = '240px';
+        input.style.padding = '4px 8px';
+        input.style.margin = '0 -8px';
+
+        const saveEdit = () => {
+           if(input.parentElement) {
+               titleEl.innerText = input.value.trim() || '名称未設定のHUB';
+               titleEl.style.display = 'inline';
+               input.remove();
+           }
+        };
+
+        input.addEventListener('blur', saveEdit);
+        input.addEventListener('keypress', (e) => {
+           if(e.key === 'Enter') {
+               saveEdit();
+           }
+        });
+
+        titleEl.style.display = 'none';
+        titleEl.parentNode.insertBefore(input, titleEl);
+        input.focus();
+      });
+    }
+
+    // Avatar
+    const avatarEl = document.getElementById('editable-avatar');
+    if (avatarEl) {
+       avatarEl.addEventListener('click', () => {
+          alert('アイコン画像のアップロード・変更画面が開きます（モックアップ）');
+       });
+    }
+  };
+
   // Initialize all functions
   initTabs();
   initToggles();
   initCalculator();
   initNav();
+  initSearchFilter();
+  initFollowBtns();
+  initEditableElements();
 });

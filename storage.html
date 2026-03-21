@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>MYストレージ連携 - MYアルバム</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --nav-height: 80px;
+        }
+        body { padding-bottom: calc(var(--nav-height) + 20px); -webkit-tap-highlight-color: transparent; }
+        .app-container { max-width: 430px; margin: 0 auto; background: var(--bg-color); min-height: 100vh;}
+
+        .h-header {
+            background: #FFF; padding: 16px; display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 90; box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .h-title { font-size: 16px; font-weight: 900; color: var(--text-main); }
+        .back-btn { font-size: 24px; color: var(--text-main); text-decoration: none; font-weight: 900; width: 32px; height: 32px; display: flex; align-items: center;}
+
+        .p-area { padding: 16px; }
+
+        .info-box {
+            background: rgba(255,107,0,0.05); border: 1px solid rgba(255,107,0,0.2);
+            border-radius: 12px; padding: 16px; margin-bottom: 24px;
+        }
+        .info-box p { font-size: 13px; font-weight: 700; color: var(--text-main); line-height: 1.5; margin: 0; }
+
+        .s-card {
+            background: #FFF; border-radius: 16px; border: 1px solid var(--border-color);
+            padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+        }
+        .sc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .sc-title { font-size: 15px; font-weight: 900; color: var(--text-main); }
+        
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 900; }
+        .badge-active { background: var(--primary-color); color: #FFF; }
+        .badge-blue { background: #E5F0FF; color: #0075FF; }
+        .badge-orange { background: rgba(255,107,0,0.1); color: var(--primary-color); }
+        .badge-green { background: rgba(52,199,89,0.1); color: #34C759; }
+        .badge-red { background: rgba(255,59,48,0.1); color: #FF3B30; }
+        .badge-gray { background: #F2F2F7; color: var(--text-sub); }
+
+        .progress-bar-wrap { width: 100%; height: 8px; background: #EAE8F2; border-radius: 4px; margin-top: 8px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: var(--primary-color); border-radius: 4px; }
+        
+        .c-app-card {
+            background: #FFF; border-radius: 16px; border: 1px solid var(--border-color);
+            padding: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 16px;
+        }
+        .c-app-icon { width: 48px; height: 48px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--bg-color); border-radius: 12px;}
+        .c-app-icon svg { width: 24px; height: 24px; fill: var(--text-main); }
+        .c-app-info { flex: 1; }
+        .c-app-actions { display: flex; gap: 8px; margin-top: 12px; }
+        
+        /* Filter Tabs */
+        .filter-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 16px; -ms-overflow-style: none; scrollbar-width: none;}
+        .filter-tabs::-webkit-scrollbar { display: none; }
+        .f-tab { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 800; background: #FFF; border: 1px solid var(--border-color); color: var(--text-sub); white-space: nowrap; transition: 0.2s;}
+        .f-tab.active { background: var(--primary-light); color: var(--primary-color); border-color: rgba(255,107,0,0.3); }
+
+        /* Reservation List */
+        .r-item { background: #FFF; border-radius: 16px; border: 1px solid var(--border-color); padding: 16px; margin-bottom: 12px; display: block; }
+        .r-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .r-title { font-size: 14px; font-weight: 900; color: var(--text-main); word-break: break-all; margin-bottom: 4px; line-height: 1.4; }
+        .r-meta { font-size: 11px; color: var(--text-sub); font-weight: 600; margin-bottom: 2px;}
+        .r-desc { font-size: 11px; color: var(--text-main); font-weight: 700; margin: 12px 0; background: var(--bg-color); padding: 8px 12px; border-radius: 8px;}
+        .r-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+
+        /* Toast */
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(0,0,0,0.8); color: white; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 800; opacity: 0; visibility: hidden; transition: 0.3s; z-index: 200; box-shadow: 0 4px 12px rgba(0,0,0,0.2);}
+        .toast.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+
+        /* Unified Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background-color: rgba(255,255,255,0.95); backdrop-filter: blur(10px); height: var(--nav-height); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid var(--border-color); z-index: 100; padding-bottom: env(safe-area-inset-bottom, 0px); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-sub); text-decoration: none; font-size: 10px; font-weight: 700; gap: 4px; transition: 0.2s;}
+        .nav-item.active { color: var(--primary-color); }
+        .nav-item svg { width: 24px; height: 24px; fill: currentColor; }
+        .nav-fab { background-color: var(--primary-color); color: white; width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: -30px; box-shadow: 0 4px 12px rgba(255,107,0,0.3); font-size: 32px; line-height: 1; text-decoration: none; border: 4px solid var(--bg-color); }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        
+        <header class="h-header">
+            <a href="home.html" class="back-btn">‹</a>
+            <div class="h-title">MYストレージ連携</div>
+            <div style="width: 32px;"></div>
+        </header>
+
+        <div class="p-area">
+            
+            <div class="info-box">
+                <p>大容量ファイルはスマホに直接保存できません。<br>予約後、別アプリ<strong>「PC版 MYストレージ」</strong>から一括で受け取ってください。</p>
+            </div>
+
+            <!-- 1. Download Reservation List (Moved to Top) -->
+            <h2 style="font-size: 16px; font-weight: 900; margin-bottom: 8px;">ダウンロード予約一覧</h2>
+            <p style="font-size: 11px; color: var(--text-sub); font-weight: 600; margin-bottom: 16px;">スマホでは予約状況のみ確認できます。受け取りはPC版 MYストレージ で行ってください。</p>
+
+            <div style="background:#FFF; padding:12px 16px; border-radius:12px; border:1px solid var(--border-color); margin-bottom:16px; font-size:11px; font-weight:800; display:flex; flex-wrap:wrap; gap:12px;">
+                <span style="color:#0075FF;">準備中: 1</span>
+                <span style="color:var(--primary-color);">ダウンロード待ち: 1</span>
+                <span style="color:#34C759;">完了: 1</span>
+                <span style="color:#FF3B30;">期限切れ: 1</span>
+                <span style="color:var(--text-sub);">キャンセル: 1</span>
+            </div>
+
+            <div class="filter-tabs" id="r-filters">
+                <button class="f-tab active" onclick="filterList('all', this)">すべて</button>
+                <button class="f-tab" onclick="filterList('prep', this)">準備中</button>
+                <button class="f-tab" onclick="filterList('wait', this)">ダウンロード待ち</button>
+                <button class="f-tab" onclick="filterList('done', this)">完了</button>
+                <button class="f-tab" onclick="filterList('other', this)">その他</button>
+            </div>
+
+            <div id="reservation-list">
+                
+                <!-- Item 1: 準備中 -->
+                <div class="r-item" data-status="prep">
+                    <div class="r-top">
+                        <div class="badge badge-blue">受付済み準備中</div>
+                        <div class="r-meta">期限: 2026/03/22 23:59</div>
+                    </div>
+                    <div class="r-title">TokyoLive_FullCam_01.mov</div>
+                    <div class="r-meta">受付: 2026/03/19 10:15 / サイズ: 28.4GB</div>
+                    <div class="r-desc">受け取り用データを作成中です。完了後にPCで受け取れます。</div>
+                    <div class="r-actions">
+                        <button class="btn btn-outline btn-sm" style="width:auto; border-radius:8px;">詳細</button>
+                        <button class="btn btn-outline btn-sm" style="width:auto; border-radius:8px; color:#FF3B30; border-color:#FF3B30;">キャンセル</button>
+                    </div>
+                </div>
+
+                <!-- Item 2: ダウンロード待ち -->
+                <div class="r-item" data-status="wait">
+                    <div class="r-top">
+                        <div class="badge badge-orange">ダウンロード待ち</div>
+                        <div class="r-meta" style="color:#FF3B30;">期限: 2026/03/22 23:59</div>
+                    </div>
+                    <div class="r-title">SummerFes_Backstage_A.zip</div>
+                    <div class="r-meta">受付: 2026/03/19 09:40 / サイズ: 12.8GB</div>
+                    <div class="r-desc">PC版 MYストレージ を起動すると受け取り可能です。</div>
+                    <div class="r-actions">
+                        <button class="btn btn-outline btn-sm" style="width:auto; border-radius:8px;">詳細</button>
+                        <button class="btn btn-primary btn-sm" style="width:auto; border-radius:8px;">PCで受け取る方法</button>
+                    </div>
+                </div>
+
+                <!-- Item 3: 完了 -->
+                <div class="r-item" data-status="done">
+                    <div class="r-top">
+                        <div class="badge badge-green">ダウンロード完了</div>
+                    </div>
+                    <div class="r-title">Aoi_Birthday_MC_4K.mov</div>
+                    <div class="r-meta">受付: 2026/03/18 22:10 / サイズ: 6.2GB</div>
+                    <div class="r-desc">PC版 MYストレージ で受け取り済みです。</div>
+                    <div class="r-actions">
+                        <button class="btn btn-outline btn-sm" style="width:auto; border-radius:8px;">詳細</button>
+                    </div>
+                </div>
+
+                <!-- Item 4: 期限切れ -->
+                <div class="r-item" data-status="other">
+                    <div class="r-top">
+                        <div class="badge badge-red">期限切れ</div>
+                    </div>
+                    <div class="r-title">Live_Archive_Part03.mov</div>
+                    <div class="r-meta">受付: 2026/03/16 18:05 / サイズ: 30.0GB</div>
+                    <div class="r-desc">期限を過ぎたため受け取りできません。必要なら再予約してください。</div>
+                    <div class="r-actions">
+                        <button class="btn btn-outline btn-sm" style="width:auto; border-radius:8px;">詳細</button>
+                        <button class="btn btn-primary btn-sm" style="width:auto; border-radius:8px;">再予約する</button>
+                    </div>
+                </div>
+
+                <!-- Item 5: キャンセル -->
+                <div class="r-item" data-status="other">
+                    <div class="r-top">
+                        <div class="badge badge-gray">キャンセル</div>
+                    </div>
+                    <div class="r-title">Rehearsal_Cam_B.zip</div>
+                    <div class="r-meta">受付: 2026/03/16 11:32 / サイズ: 4.6GB</div>
+                    <div class="r-desc">この予約はキャンセルされています。</div>
+                    <div class="r-actions">
+                        <button class="btn btn-outline btn-sm" style="width:auto; border-radius:8px;">詳細</button>
+                        <button class="btn btn-primary btn-sm" style="width:auto; border-radius:8px;">再予約する</button>
+                    </div>
+                </div>
+            </div>
+
+            <div style="height: 32px;"></div>
+
+            <!-- 2. Contract Status Card (Card border removed) -->
+            <div style="margin-bottom: 24px; padding: 0 4px;">
+                <div class="sc-header">
+                    <div class="sc-title">MYストレージ契約状況</div>
+                    <div class="badge badge-active">契約中</div>
+                </div>
+                <div style="font-size: 13px; font-weight: 900; margin-bottom: 8px;">プラン: プレミアム</div>
+                <div style="font-size: 11px; color: var(--text-sub); font-weight: 600;">PC版 MYストレージ と連携して、高品質な大容量アーカイブをセキュアに受け取れます。</div>
+            </div>
+
+            <!-- 3. Usage Status Cards -->
+            <div class="s-card" style="background: #E8EFF2; border: none; padding: 24px;">
+                <div class="sc-title" style="margin-bottom: 16px; color: #515C61;">伝送量の利用状況</div>
+                
+                <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;">
+                    <span style="font-size:14px; font-weight:900; color:#515C61;">伝送合計</span>
+                    <span style="font-size:18px; font-weight:900; color:#515C61;">1 TB<span style="font-size:13px;"> /年間(12か月)</span></span>
+                </div>
+                <div style="width: 100%; height: 8px; background: #9EA8AD; border-radius: 4px; overflow: hidden; margin-bottom: 20px;">
+                    <div style="height: 100%; background: #616E73; border-radius: 4px; width: 49%;"></div>
+                </div>
+
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:14px; font-weight:900; color:#515C61;">残伝送量</span>
+                        <span style="font-size:18px; font-weight:900; color:#515C61;">510.52 GB</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:14px; font-weight:900; color:#515C61;">預け量</span>
+                        <span style="font-size:18px; font-weight:900; color:#515C61;">1.47 GB</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:14px; font-weight:900; color:#515C61;">終了日</span>
+                        <span style="font-size:18px; font-weight:900; color:#515C61;">2027/02/27</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="height: 32px;"></div>
+
+            <!-- 4. PC Client App (Moved to Bottom) -->
+            <h2 style="font-size: 16px; font-weight: 900; margin-bottom: 8px;">PC版 MYストレージ をダウンロード</h2>
+            <p style="font-size: 11px; color: var(--text-sub); font-weight: 600; margin-bottom: 16px;">大容量ファイルの受け取りはPC版アプリから行います</p>
+
+            <div class="c-app-card">
+                <div class="c-app-icon">
+                    <svg viewBox="0 0 24 24"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.951-1.801"/></svg>
+                </div>
+                <div class="c-app-info">
+                    <div style="font-size:14px; font-weight:900;">Windows版</div>
+                    <div style="font-size:11px; color:var(--text-sub); font-weight:600;">Windows 10 / 11 対応</div>
+                    <div class="c-app-actions">
+                        <button class="btn btn-primary btn-sm" style="flex:1; border-radius:8px;" onclick="showToast('※PCからアクセスしてダウンロードしてください');">ダウンロード</button>
+                        <button class="btn btn-outline btn-sm" style="flex:1; border-radius:8px;" onclick="shareApp('win');">共有 🔗</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="c-app-card">
+                <div class="c-app-icon">
+                    <svg viewBox="0 0 24 24"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.04 2.26-.74 3.58-.8 1.58.05 2.8.76 3.56 1.95-3.14 1.87-2.65 6.06.49 7.37-.73 1.77-1.7 3.65-2.71 4.65zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.32 2.37-2.01 4.29-3.74 4.25z"/></svg>
+                </div>
+                <div class="c-app-info">
+                    <div style="font-size:14px; font-weight:900;">Mac版</div>
+                    <div style="font-size:11px; color:var(--text-sub); font-weight:600;">macOS 対応</div>
+                    <div class="c-app-actions">
+                        <button class="btn btn-primary btn-sm" style="flex:1; border-radius:8px;" onclick="showToast('※PCからアクセスしてダウンロードしてください');">ダウンロード</button>
+                        <button class="btn btn-outline btn-sm" style="flex:1; border-radius:8px;" onclick="shareApp('mac');">共有 🔗</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="height: 60px;"></div>
+        </div>
+
+        <div id="toast" class="toast">URLをコピーしました</div>
+
+        
+    </div>
+    
+    <script>
+        // フィルタ機能
+        function filterList(status, btnElement) {
+            // タブのアクティブ状態を更新
+            document.querySelectorAll('.f-tab').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+            
+            // アイテムの表示非表示切り替え
+            const items = document.querySelectorAll('.r-item');
+            items.forEach(item => {
+                if (status === 'all' || item.getAttribute('data-status') === status) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // 共有機能モック
+        function shareApp(platform) {
+            const url = platform === 'win' 
+                ? 'https://myalbum.example.com/download/mystorage_win.exe' 
+                : 'https://myalbum.example.com/download/mystorage_mac.dmg';
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: `MYストレージ (${platform.toUpperCase()}版)`,
+                    text: '大容量ファイル保存用PCクライアント',
+                    url: url
+                }).catch(err => {
+                    copyToClipboard(url);
+                });
+            } else {
+                copyToClipboard(url);
+            }
+        }
+
+        // クリップボードコピー
+        function copyToClipboard(text) {
+            if(navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('URLをコピーしました');
+                }).catch(err => {
+                    showToast('コピーに失敗しました');
+                });
+            } else {
+                // fall back logic or just show toast for prototype
+                showToast('URLをコピーしました (Mock)');
+            }
+        }
+
+        // トースト通知
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
+    </script>
+<script src="nav.js"></script>
+</body>
+</html>

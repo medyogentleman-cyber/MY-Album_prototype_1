@@ -2,169 +2,314 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>収益・決済 - MYアルバム</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>DMC PAY取引情報 - MYアルバム</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --nav-height: 80px;
+        }
+        body { padding-bottom: calc(var(--nav-height) + 20px); -webkit-tap-highlight-color: transparent; }
+        .app-container { max-width: 430px; margin: 0 auto; background: var(--bg-color); min-height: 100vh;}
+
         .revenue-hero {
             background: linear-gradient(135deg, var(--primary-color) 0%, #FF9955 100%);
             color: white; padding: 24px 16px; border-radius: 0 0 24px 24px;
             margin-bottom: 24px; box-shadow: 0 4px 12px rgba(255,107,0,0.2);
         }
-        .earn-label { font-size: 14px; font-weight: 600; opacity: 0.9; }
-        .earn-amount { font-size: 32px; font-weight: 800; display: flex; align-items: baseline; gap: 4px; margin: 8px 0; }
-        .earn-currency { font-size: 16px; font-weight: 600; }
-        
-        .calc-box {
-            background: white; border: 2px solid var(--border-color);
-            border-radius: var(--border-radius); padding: 20px;
-            margin-bottom: 24px; text-align: center;
-        }
-        .currency-input {
-            width: 100%; border: none; border-bottom: 2px solid var(--border-color);
-            font-size: 24px; font-weight: 700; text-align: center; padding: 8px;
-            outline: none; color: var(--text-main); font-family: inherit; margin-bottom: 16px;
-        }
-        .currency-input:focus { border-color: var(--primary-color); }
-        .dmcc-result {
-            font-size: 36px; font-weight: 800; color: var(--primary-color);
-            display: flex; align-items: baseline; justify-content: center; gap: 8px; margin: 16px 0;
-        }
-        
-        .external-link {
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            font-size: 14px; color: #0075FF; text-decoration: none; font-weight: 600;
-            background: #E5F0FF; padding: 12px; border-radius: 8px; margin-top: 16px;
-        }
+        .earn-label { font-size: 14px; font-weight: 800; opacity: 0.9; }
+        .earn-amount { font-size: 32px; font-weight: 900; display: flex; align-items: baseline; gap: 4px; margin: 8px 0; }
+        .earn-currency { font-size: 16px; font-weight: 800; }
 
         .action-list {
             display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px;
         }
         .action-item {
             background: white; border: 1px solid var(--border-color); padding: 16px;
-            border-radius: 12px; display: flex; align-items: center; justify-content: space-between;
+            border-radius: 16px; display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            transition: 0.2s;
         }
-        .action-icon {
-            width: 40px; height: 40px; background: var(--bg-color); border-radius: 8px;
-            display: flex; align-items: center; justify-content: center; font-size: 20px;
-        }
-        .action-text { flex: 1; margin: 0 16px; }
-        .action-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
-        .action-desc { font-size: 12px; color: var(--text-sub); }
+        .action-item:active { transform: scale(0.98); }
+        .action-title { font-weight: 900; font-size: 14px; margin-bottom: 4px; color: var(--text-main); }
+        .action-desc { font-size: 11px; color: var(--text-sub); font-weight: 600; line-height: 1.4; }
+
+        /* Payment History Styles */
+        .t-group { margin-bottom: 24px; }
+        .t-month { font-size: 14px; font-weight: 900; color: var(--text-main); margin-bottom: 12px; padding-left: 4px; border-left: 4px solid var(--primary-color);}
+        .t-card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 8px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.02);}
+        .t-info { flex: 1; margin-right: 12px; }
+        .t-title { font-size: 13px; font-weight: 800; color: var(--text-main); margin-bottom: 6px; line-height: 1.4;}
+        .t-date { font-size: 11px; color: var(--text-sub); font-weight: 600;}
+        .t-amount { font-size: 15px; font-weight: 900; white-space: nowrap; }
+        .amt-pay { color: var(--text-main); }
+        .amt-inc { color: #34C759; }
+        .t-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 900; margin-right: 6px; vertical-align: bottom;}
+        .badge-pay { background: #F2F2F7; color: var(--text-sub); }
+        .badge-inc { background: rgba(52,199,89,0.1); color: #34C759; }
+
+        /* Storage Styles */
+        .sc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .sc-title { font-size: 15px; font-weight: 900; color: var(--text-main); }
+        .badge-active { background: var(--primary-color); color: #FFF; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 900; }
+        .s-card { background: #FFF; border-radius: 16px; border: 1px solid var(--border-color); padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.03); }
+        .progress-bar-wrap { width: 100%; height: 8px; background: #EAE8F2; border-radius: 4px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: var(--primary-color); border-radius: 4px; }
+        
+        .c-app-card { background: #FFF; border-radius: 16px; border: 1px solid var(--border-color); padding: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 16px; }
+        .c-app-icon { width: 48px; height: 48px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--bg-color); border-radius: 12px;}
+        .c-app-icon svg { width: 24px; height: 24px; fill: var(--text-main); }
+        .c-app-info { flex: 1; }
+        .c-app-actions { display: flex; gap: 8px; margin-top: 12px; }
+        
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(0,0,0,0.8); color: white; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 800; opacity: 0; visibility: hidden; transition: 0.3s; z-index: 200; box-shadow: 0 4px 12px rgba(0,0,0,0.2);}
+        .toast.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+        
+        /* Unified Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background-color: rgba(255,255,255,0.95); backdrop-filter: blur(10px); height: var(--nav-height); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid var(--border-color); z-index: 100; padding-bottom: env(safe-area-inset-bottom, 0px); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-sub); text-decoration: none; font-size: 10px; font-weight: 700; gap: 4px; transition: 0.2s;}
+        .nav-item.active { color: var(--primary-color); }
+        .nav-item svg { width: 24px; height: 24px; fill: currentColor; }
+        .nav-fab { background-color: var(--primary-color); color: white; width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: -30px; box-shadow: 0 4px 12px rgba(255,107,0,0.3); font-size: 32px; line-height: 1; text-decoration: none; border: 4px solid var(--bg-color); }
     </style>
 </head>
 <body>
     <div class="app-container">
         <!-- Header -->
-        <header class="app-header" style="background:var(--primary-color); color:white; border:none;">
+        <header class="app-header" style="background:var(--primary-color); color:white; border:none; padding: 16px; display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; z-index:90;">
             <div style="width: 24px;"></div> <!-- Spacer -->
-            <div class="app-header-title">収益管理・決済</div>
+            <div style="font-size: 16px; font-weight: 900;">DMC PAY取引情報</div>
             <div style="width: 24px;"></div>
         </header>
 
         <!-- Revenue Dashboard -->
         <div class="revenue-hero">
-            <div class="earn-label">Curation to Earn 獲得残高</div>
+            <div class="earn-label">DMC PAY残高</div>
             <div class="earn-amount">
                 12,450.00 <span class="earn-currency">DMCC</span>
             </div>
             <div style="font-size: 12px; display:flex; justify-content:space-between; align-items:center;">
-                <span>≈ ¥186,750 JPY</span>
-                <button class="btn btn-sm" style="background:white; color:var(--primary-color); width:auto; padding: 6px 12px;">引き出す</button>
+                <span style="font-weight:700;">≈ ¥186,750 JPY</span>
+                <button class="btn btn-sm" style="background:white; color:var(--primary-color); width:auto; padding: 8px 16px; font-weight:800; border-radius:20px; border:none;" onclick="alert('DMC PAYへ残高を移動いたします。よろしいですか？')">DMC PAYに移動</button>
             </div>
         </div>
 
-        <div class="p-4" style="padding-top: 0;">
-            <h2 class="mb-4 text-center">DMCC - 日本円 計算機</h2>
+        <div class="p-4" style="padding: 0 16px;">
+            <h2 class="mb-4 text-center" style="font-size:18px; font-weight:900; color:var(--text-main); margin-bottom: 20px;">DMC PAYで購入</h2>
             
-            <div class="calc-box">
-                <div class="text-sub text-xs mb-2">① 金額を日本円(JPY)で入力</div>
-                <div style="display:flex; align-items:center; gap:8px;">
-                     <span style="font-size:24px; font-weight:700;">¥</span>
-                     <input type="number" id="jpy-amount" class="currency-input" placeholder="1000" style="margin:0;">
-                </div>
-                
-                <div style="margin: 16px 0; color:var(--text-sub);">🔻 自動換算 🔻</div>
-                
-                <div class="text-sub text-xs">② 必要なDMCC</div>
-                <div class="dmcc-result">
-                    <span id="dmcc-output">0.00</span> <span style="font-size:16px;">DMCC</span>
+            <div class="action-list" style="margin-bottom: 32px;">
+                <div class="action-item" style="cursor:pointer;" onclick="window.open('https://www.udemy.com/course/sns-vllo/')">
+                    <div style="width: 60px; height: 60px; border-radius: 12px; background: url('images/summer.png') center/cover; margin-right: 12px; flex-shrink: 0;"></div>
+                    <div style="flex: 1; margin: 0;">
+                        <div class="action-title" style="font-size: 13px;">スマホで簡単！VLLO動画編集</div>
+                        <div class="action-desc" style="margin-bottom: 4px;">推し活SNSで映える神編集テクニック</div>
+                        <div style="color:var(--primary-color); font-weight:900; font-size:14px;">1,500 DMCC</div>
+                    </div>
                 </div>
 
-                <a href="https://phemex.com/ja/how-to-buy/decentralized-music-chain" target="_blank" class="external-link">
-                    🌐 DMCCの購入方法はこちら (Phemex) →
-                </a>
+                <div class="action-item" style="cursor:pointer;" onclick="window.open('https://www.udemy.com/topic/video-editing/')">
+                    <div style="width: 60px; height: 60px; border-radius: 12px; background: url('images/live.png') center/cover; margin-right: 12px; flex-shrink: 0;"></div>
+                    <div style="flex: 1; margin: 0;">
+                        <div class="action-title" style="font-size: 13px;">ゼロから学ぶ本格動画編集</div>
+                        <div class="action-desc" style="margin-bottom: 4px;">プロ並みのクオリティを目指す方向け</div>
+                        <div style="color:var(--primary-color); font-weight:900; font-size:14px;">2,800 DMCC</div>
+                    </div>
+                </div>
+
+                <div class="action-item" style="cursor:pointer;" onclick="window.open('https://www.udemy.com/topic/davinci-resolve/')">
+                    <div style="width: 60px; height: 60px; border-radius: 12px; background: url('images/twoshot.png') center/cover; margin-right: 12px; flex-shrink: 0;"></div>
+                    <div style="flex: 1; margin: 0;">
+                        <div class="action-title" style="font-size: 13px;">DaVinci Resolve マスター</div>
+                        <div class="action-desc" style="margin-bottom: 4px;">映画級のカラーグレーディングを実践</div>
+                        <div style="color:var(--primary-color); font-weight:900; font-size:14px;">4,200 DMCC</div>
+                    </div>
+                </div>
             </div>
 
-            <h3 class="mb-4">プラットフォーム内決済</h3>
-            <div class="action-list">
-                <!-- Tipping -->
-                <div class="action-item">
-                    <div class="action-icon">🎁</div>
-                    <div class="action-text">
-                        <div class="action-title">クリエイターへ投げ銭</div>
-                        <div class="action-desc">推しのクリエイターをDMCCで直接支援</div>
+            <!-- Transaction History -->
+            <h3 class="mb-4" style="font-size:18px; font-weight:900; color:var(--text-main); margin-bottom: 8px;">取引履歴</h3>
+            <p style="font-size: 12px; font-weight: 700; color: var(--text-sub); margin-bottom: 24px;">過去3か月間の課金・収入の実績</p>
+
+            <div class="t-group">
+                <div class="t-month">2026年 3月</div>
+
+                <div class="t-card">
+                    <div class="t-info">
+                        <div class="t-title"><span class="t-badge badge-pay">支払い</span> あおいちゃん熱烈応援アルバム</div>
+                        <div class="t-date">2026/3/19 14:32</div>
                     </div>
-                    <button class="btn btn-primary btn-sm" style="width:auto; border-radius:8px;">送金</button>
+                    <div class="t-amount amt-pay">-200円</div>
                 </div>
-                
-                <!-- Premium Storage -->
-                <div class="action-item">
-                    <div class="action-icon" style="background:var(--ddmc-blue); color:white;">💾</div>
-                    <div class="action-text">
-                        <div class="action-title">プレミアムストレージ課金</div>
-                        <div class="action-desc">D-DMCの保存容量(HOT)を拡張する</div>
+            </div>
+
+            <div class="t-group">
+                <div class="t-month">2026年 2月</div>
+
+                <div class="t-card">
+                    <div class="t-info">
+                        <div class="t-title"><span class="t-badge badge-inc">収入</span> あるあるあるね</div>
+                        <div class="t-date">2026/2/28 18:45</div>
                     </div>
-                    <button class="btn btn-outline btn-sm" style="width:auto; border-radius:8px;">プラン詳細</button>
+                    <div class="t-amount amt-inc">+500円</div>
                 </div>
-                
-                <!-- Buy Content -->
-                <div class="action-item">
-                    <div class="action-icon">🔒</div>
-                    <div class="action-text">
-                        <div class="action-title">限定コンテンツ購入</div>
-                        <div class="action-desc">NFT化された神アーカイブを購入</div>
+
+                <div class="t-card">
+                    <div class="t-info">
+                        <div class="t-title"><span class="t-badge badge-pay">支払い</span> サブスクリプション2026年3月</div>
+                        <div class="t-date">2026/2/28 00:01</div>
                     </div>
-                    <button class="btn btn-outline btn-sm" style="width:auto; border-radius:8px;">検索へ</button>
+                    <div class="t-amount amt-pay">-1,250円</div>
+                </div>
+
+                <div class="t-card">
+                    <div class="t-info">
+                        <div class="t-title"><span class="t-badge badge-pay">支払い</span> プレミアムストレージ2026年3月</div>
+                        <div class="t-date">2026/2/28 00:01</div>
+                    </div>
+                    <div class="t-amount amt-pay">-1,000円</div>
+                </div>
+
+                <div class="t-card">
+                    <div class="t-info">
+                        <div class="t-title"><span class="t-badge badge-inc">収入</span> あおいちゃんの推し活HUB 1万音量</div>
+                        <div class="t-date">2026/2/15 21:10</div>
+                    </div>
+                    <div class="t-amount amt-inc">+100円</div>
+                </div>
+
+                <div class="t-card">
+                    <div class="t-info">
+                        <div class="t-title"><span class="t-badge badge-inc">収入</span> あおいちゃんの推し活HUB 1000ファン</div>
+                        <div class="t-date">2026/2/15 21:10</div>
+                    </div>
+                    <div class="t-amount amt-inc">+100円</div>
+                </div>
+            </div>
+
+            <div style="height: 16px;"></div>
+
+            <!-- MY Storage Block (Borderless) -->
+            <div style="margin-bottom: 24px; padding: 0 4px;">
+                <div class="sc-header">
+                    <div class="sc-title">MYストレージ契約状況</div>
+                    <div class="badge badge-active">契約中</div>
+                </div>
+                <div style="font-size: 13px; font-weight: 900; margin-bottom: 8px;">プラン: プレミアム</div>
+                <div style="font-size: 11px; color: var(--text-sub); font-weight: 600;">PC版 MYストレージ と連携して、高品質な大容量アーカイブをセキュアに受け取れます。</div>
+            </div>
+
+            <!-- Usage Status Cards -->
+            <div class="s-card" style="background: #E8EFF2; border: none; padding: 24px;">
+                <div class="sc-title" style="margin-bottom: 16px; color: #515C61;">伝送量の利用状況</div>
+                
+                <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;">
+                    <span style="font-size:14px; font-weight:900; color:#515C61;">伝送合計</span>
+                    <span style="font-size:18px; font-weight:900; color:#515C61;">1 TB<span style="font-size:13px;"> /年間(12か月)</span></span>
+                </div>
+                <div style="width: 100%; height: 8px; background: #9EA8AD; border-radius: 4px; overflow: hidden; margin-bottom: 20px;">
+                    <div style="height: 100%; background: #616E73; border-radius: 4px; width: 49%;"></div>
+                </div>
+
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:14px; font-weight:900; color:#515C61;">残伝送量</span>
+                        <span style="font-size:18px; font-weight:900; color:#515C61;">510.52 GB</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:14px; font-weight:900; color:#515C61;">預け量</span>
+                        <span style="font-size:18px; font-weight:900; color:#515C61;">1.47 GB</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:14px; font-weight:900; color:#515C61;">終了日</span>
+                        <span style="font-size:18px; font-weight:900; color:#515C61;">2027/02/27</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="height: 32px;"></div>
+
+            <!-- PC Client App Download -->
+            <h2 style="font-size: 16px; font-weight: 900; margin-bottom: 8px;">PC版 MYストレージ をダウンロード</h2>
+            <p style="font-size: 11px; color: var(--text-sub); font-weight: 600; margin-bottom: 16px;">大容量ファイルの受け取りはPC版アプリから行います</p>
+
+            <div class="c-app-card">
+                <div class="c-app-icon">
+                    <svg viewBox="0 0 24 24"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.951-1.801"/></svg>
+                </div>
+                <div class="c-app-info">
+                    <div style="font-size:14px; font-weight:900;">Windows版</div>
+                    <div style="font-size:11px; color:var(--text-sub); font-weight:600;">Windows 10 / 11 対応</div>
+                    <div class="c-app-actions">
+                        <button class="btn btn-primary btn-sm" style="flex:1; border-radius:8px;" onclick="showToast('※PCからアクセスしてダウンロードしてください');">ダウンロード</button>
+                        <button class="btn btn-outline btn-sm" style="flex:1; border-radius:8px;" onclick="shareApp('win');">共有 🔗</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="c-app-card">
+                <div class="c-app-icon">
+                    <svg viewBox="0 0 24 24"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.04 2.26-.74 3.58-.8 1.58.05 2.8.76 3.56 1.95-3.14 1.87-2.65 6.06.49 7.37-.73 1.77-1.7 3.65-2.71 4.65zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.32 2.37-2.01 4.29-3.74 4.25z"/></svg>
+                </div>
+                <div class="c-app-info">
+                    <div style="font-size:14px; font-weight:900;">Mac版</div>
+                    <div style="font-size:11px; color:var(--text-sub); font-weight:600;">macOS 対応</div>
+                    <div class="c-app-actions">
+                        <button class="btn btn-primary btn-sm" style="flex:1; border-radius:8px;" onclick="showToast('※PCからアクセスしてダウンロードしてください');">ダウンロード</button>
+                        <button class="btn btn-outline btn-sm" style="flex:1; border-radius:8px;" onclick="shareApp('mac');">共有 🔗</button>
+                    </div>
                 </div>
             </div>
             
             <div style="height: 60px;"></div>
         </div>
 
-        <!-- Bottom Navigation -->
-        <nav class="bottom-nav">
-             <a href="home.html" class="nav-item">
-                 <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-                 ホーム
-             </a>
-             <a href="search.html" class="nav-item">
-                 <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-                 検索
-             </a>
-             <a href="album_edit.html" class="nav-fab">+</a>
-             <a href="payment.html" class="nav-item active">
-                 <svg viewBox="0 0 24 24"><path d="M21 18v1H3v-1h18zM3 13h18v-2H3v2zm0-5h18V6H3v2z"/></svg>
-                 収益
-             </a>
-             <a href="profile.html" class="nav-item">
-                 <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                 👤
-             </a>
-         </nav>
+        <div id="toast" class="toast">URLをコピーしました</div>
+
+        
     </div>
     
-    <!-- External scripts -->
-    <script src="app.js"></script>
     <script>
-      // Trigger calculation initially if value exists
-      setTimeout(() => {
-          const input = document.getElementById('jpy-amount');
-          if(input) {
-              const event = new Event('input', { bubbles: true });
-              input.dispatchEvent(event);
-          }
-      }, 100);
+        // 共有機能モック
+        function shareApp(platform) {
+            const url = platform === 'win' 
+                ? 'https://myalbum.example.com/download/mystorage_win.exe' 
+                : 'https://myalbum.example.com/download/mystorage_mac.dmg';
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: `MYストレージ (${platform.toUpperCase()}版)`,
+                    text: '大容量ファイル保存用PCクライアント',
+                    url: url
+                }).catch(err => {
+                    copyToClipboard(url);
+                });
+            } else {
+                copyToClipboard(url);
+            }
+        }
+
+        // クリップボードコピー
+        function copyToClipboard(text) {
+            if(navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('URLをコピーしました');
+                }).catch(err => {
+                    showToast('コピーに失敗しました');
+                });
+            } else {
+                showToast('URLをコピーしました (Mock)');
+            }
+        }
+
+        // トースト通知
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
     </script>
+<script src="nav.js"></script>
 </body>
 </html>

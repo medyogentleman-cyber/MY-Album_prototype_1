@@ -9,22 +9,48 @@
         .login-container {
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
             padding: 40px 24px;
             min-height: 100vh;
-            background: linear-gradient(180deg, var(--bg-color) 0%, #FFFFFF 100%);
+            background: linear-gradient(135deg, #FFF5EE 0%, #FFFFFF 100%);
+        }
+        .invitation-badge {
+            background: linear-gradient(90deg, #FF6B00 0%, #FF9E00 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 15px rgba(255, 107, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .hero-section {
+            text-align: center;
+            margin-bottom: 32px;
         }
         .hero-image {
-            width: 120px;
-            height: 120px;
-            background-color: var(--primary-light);
-            border-radius: var(--border-radius);
-            margin-bottom: 24px;
+            width: 100px;
+            height: 100px;
+            background: white;
+            border-radius: 24px;
+            margin: 0 auto 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 48px;
+            font-size: 40px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+        .welcome-text {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
         }
         .tagline {
             text-align: center;
@@ -32,77 +58,151 @@
             color: var(--text-sub);
             font-size: 14px;
             line-height: 1.6;
+            max-width: 280px;
         }
         .auth-buttons {
             width: 100%;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 12px;
         }
-        .btn-wallet {
-            background-color: #F6851B; /* Metamask Orange */
-            color: white;
+        .btn-social {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            position: relative;
+            height: 54px;
+            padding: 0 24px;
+            font-weight: 600;
         }
-        .btn-wallet:hover { background-color: #E2761B; }
-        .divider {
-            display: flex;
-            align-items: center;
+        .btn-social i {
+            position: absolute;
+            left: 20px;
+            font-size: 20px;
+        }
+        .btn-google {
+            background-color: white;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+        .btn-x {
+            background-color: #000;
+            color: #fff;
+        }
+        .btn-facebook {
+            background-color: #1877F2;
+            color: #fff;
+        }
+        .btn-instagram {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            color: #fff;
+        }
+        .prototype-section {
+            margin-top: 48px;
+            width: 100%;
+            border-top: 1px solid var(--border-color);
+            padding-top: 32px;
+        }
+        .prototype-label {
             text-align: center;
             color: var(--text-sub);
+            margin-bottom: 20px;
             font-size: 12px;
-            margin: 24px 0;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        .divider::before, .divider::after {
-            content: '';
-            flex: 1;
-            border-bottom: 1px solid var(--border-color);
+        .link-card {
+            background: white;
+            padding: 16px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: block;
         }
-        .divider:not(:empty)::before { margin-right: 16px; }
-        .divider:not(:empty)::after { margin-left: 16px; }
+        .link-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .link-card-title {
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .link-card-desc {
+            font-size: 11px;
+            color: var(--text-sub);
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body>
     <div class="app-container">
         <div class="login-container">
-            <div class="hero-image">
-               <!-- Placeholder for App Icon -->
-               📚
+            <div class="invitation-badge">
+                <span>✓</span> 公式 あおいちゃん推し活HUB 特別招待
             </div>
-            
-            <h1 class="logo-text">MY<span class="logo-accent">アルバム</span></h1>
-            <p class="tagline">
-                散在するデータを「循環する資産」へ。<br>
-                Web3時代のファンキュレーションプラットフォーム
-            </p>
+
+            <div class="hero-section">
+                <div class="hero-image">
+                    <img src="images/Myalbumlogo_small.png" alt="Logo" style="width: 60px;">
+                </div>
+                <h1 class="welcome-text">MYアルバムへようこそ</h1>
+                <p class="tagline">
+                    あおいちゃんの活動を、<br>あなただけの特別なアルバムに。
+                </p>
+            </div>
 
             <div class="auth-buttons">
-                <!-- Data Sovereignty / Web3 Authentication -->
-                <button class="btn btn-wallet" onclick="location.href='home.html'">
-                    🦊 ウォレットでログイン (MetaMask連携)
+                <button class="btn btn-social btn-google" onclick="location.href='home.html'">
+                    <img src="images/icon/Google.png" alt="Google" style="width:20px; margin-right:8px;">
+                    Google でログイン
                 </button>
-                
-                <div class="divider">または</div>
-                
-                <button class="btn btn-primary" onclick="location.href='home.html'">
-                    ✉️ メールアドレスではじめる
-                </button>
-                
-                <button class="btn btn-outline" onclick="location.href='home.html'">
-                    Googleでログイン
-                </button>
-                
-                <button class="btn btn-outline" style="background-color: #000; color: #fff; border:none;" onclick="location.href='home.html'">
+                <button class="btn btn-social btn-x" onclick="location.href='home.html'">
+                    <img src="images/icon/X.png" alt="X" style="width:20px; margin-right:8px;">
                     𝕏 でログイン
+                </button>
+                <button class="btn btn-social btn-facebook" onclick="location.href='home.html'">
+                    <img src="images/icon/Facebook.png" alt="Facebook" style="width:20px; margin-right:8px;">
+                    Facebook でログイン
+                </button>
+                <button class="btn btn-social btn-instagram" onclick="location.href='home.html'">
+                    <img src="images/icon/Instagram.png" alt="Instagram" style="width:20px; margin-right:8px;">
+                    Instagram でログイン
                 </button>
             </div>
             
             <p class="text-xs text-center mt-4" style="color: var(--text-sub); margin-top: 32px;">
                 利用規約 と プライバシーポリシー に同意した上でログインしてください。
             </p>
+
+            <div class="prototype-section">
+                <div class="prototype-label">■ プロトタイプ用リンク ■</div>
+                
+                <a href="file:///C:/Users/naoki/OneDrive/デスクトップ/Antigravity/MY Album_prototype_idol/index.html" class="link-card">
+                    <div class="link-card-title">
+                        <span>👤</span> [アイドル/アーティスト]
+                    </div>
+                    <p class="link-card-desc">
+                        アイドル/アーティストが公認キュレーターのリンクとQRコードを発行できる管理画面のプロトタイプです。
+                    </p>
+                </a>
+
+                <a href="C:\Users\naoki\OneDrive\デスクトップ\Antigravity\MY Album_prototype_Admin\admin_dashboard.html" class="link-card">
+                    <div class="link-card-title">
+                        <span>⚙️</span> [管理画面]
+                    </div>
+                    <p class="link-card-desc">
+                        MYアルバムの運営者(DiscoverFeed)が利用する全体管理ページのプロトタイプです。
+                    </p>
+                </a>
+            </div>
         </div>
     </div>
     <script src="app.js"></script>

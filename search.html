@@ -2,126 +2,278 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>検索 - MYアルバム</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        .search-header {
-            padding: 16px; background: white; border-bottom: 1px solid var(--border-color);
-            position: sticky; top: 0; z-index: 100;
+        :root {
+            --nav-height: 80px;
+            --search-bg: #F2F2F7;
         }
-        .search-bar {
-            background: var(--bg-color); border-radius: var(--border-radius);
-            display: flex; align-items: center; padding: 0 16px; height: 44px;
-        }
-        .search-input {
-            width: 100%; background: transparent; border: none; outline: none;
-            font-size: 15px; margin-left: 8px; font-family: inherit;
-        }
-        
-        /* Two Tabs */
-        .search-tabs { display: flex; margin-top: 16px; }
-        .s-tab { flex: 1; text-align: center; padding: 12px 0; font-size: 14px; font-weight: 600; color: var(--text-sub); border-bottom: 2px solid transparent; cursor: pointer; }
-        .s-tab.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
 
-        /* Search Results Lists */
-        .list-container { padding: 16px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; background-color: var(--bg-color); color: var(--text-main); -webkit-tap-highlight-color: transparent; }
         
-        .creator-card {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 12px; background: white; border-radius: 12px; border: 1px solid var(--border-color);
-            margin-bottom: 12px;
-        }
-        .c-info { display: flex; align-items: center; gap: 12px; }
-        .c-avatar { width: 48px; height: 48px; border-radius: 50%; background: #E5E5EA; object-fit: cover; }
-        .c-name { font-weight: 700; font-size: 14px; display: flex; align-items: center; gap:4px; }
-        .c-stats { font-size: 11px; color: var(--text-sub); margin-top: 4px; }
+        .app-container { max-width: 430px; margin: 0 auto; background: var(--bg-color); position: relative; min-height: 100vh; padding-bottom: calc(var(--nav-height) + 20px);}
+
+        /* Sticky Header Components */
+        .sticky-head { position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border-color); }
+
+        .search-row { padding: 12px 16px; display: flex; gap: 12px; align-items: center; }
+        .search-box { flex: 1; background: var(--search-bg); border-radius: 12px; display: flex; align-items: center; padding: 0 12px; height: 44px; border: 2px solid transparent; transition: 0.2s;}
+        .search-box:focus-within { border-color: var(--primary-color); background: #FFF; box-shadow: 0 4px 12px rgba(255,107,0,0.1);}
+        .search-box svg { fill: var(--text-sub); width: 20px; height: 20px; flex-shrink: 0;}
+        .search-input { flex: 1; border: none; background: transparent; font-size: 14px; font-weight: 800; padding: 0 8px; color: var(--text-main); font-family: inherit; width: 100%; outline: none;}
+        .search-input::placeholder { color: #A0A0A0; font-weight: 600; font-size: 13px;}
+        .clear-btn { color: #A0A0A0; font-size: 16px; cursor: pointer; display: none; width: 20px; height: 20px; text-align: center; line-height: 20px; background: rgba(0,0,0,0.1); border-radius: 50%; padding-bottom: 2px;}
+
+        /* Timeline Feed */
+        .feed-sec { margin-bottom: 24px; }
+        .platform-header { padding: 12px 16px; display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 900; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border-color); position: sticky; top: 154px; z-index: 40; box-shadow: var(--shadow-sm);}
+        .ph-icon { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #FFF; font-size: 14px; }
+        .ph-icon img { width: 100%; height: 100%; object-fit: contain; border-radius: inherit; }
+        .ph-icon.is-img { background: #FFF !important; border: 1px solid rgba(0,0,0,0.05); padding: 3px; }
+        .ph-icon.myal { background: #FFF; border: 1px solid rgba(0,0,0,0.1); }
+
+        .feed-list { padding: 0 16px; background: #FFF; }
+        .feed-item { display: flex; gap: 12px; padding: 16px 0; border-bottom: 1px solid rgba(0,0,0,0.04); }
+        .feed-item:last-child { border-bottom: none; }
+        .fi-thumb { width: 100px; height: 75px; border-radius: 8px; object-fit: cover; flex-shrink: 0; background: #EAE8F2; border: 1px solid rgba(0,0,0,0.05);}
+        .fi-body { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 6px; }
+        .fi-title { font-size: 13px; font-weight: 800; line-height: 1.4; margin-bottom: 2px; color: var(--text-main); }
+        .fi-date { font-size: 12px; font-weight: 900; color: var(--text-sub); display: flex; align-items: center; gap: 8px;}
+        .fi-type { font-size: 11px; color: var(--text-sub); display: flex; align-items: center; gap: 4px; font-weight: 800; background: var(--bg-color); padding: 4px 8px; border-radius: 6px; width: fit-content;}
+        .new-tag { background: var(--accent-pink); color: #FFF; font-size: 9px; font-weight: 900; padding: 2px 6px; border-radius: 4px; margin-left: auto; line-height: 1.2; }
+        
+        /* Large ThumbItems */
+        .feed-item.large-thumb { flex-direction: column; }
+        .feed-item.large-thumb .fi-thumb { width: 100%; height: auto; aspect-ratio: 1/1; max-height: 380px; border-radius: 12px; }
+        .feed-item.large-thumb .fi-body { width: 100%; }
+
+        /* Actions */
+        .fi-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+        .action-btn { font-size: 11px; font-weight: 800; padding: 8px 10px; border-radius: 6px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; transition: 0.2s; white-space: nowrap; font-family: inherit; line-height: 1;}
+        .btn-archive { background: #EAE8F2; color: var(--text-main); }
+        .btn-archive:active { background: #D1D1D6; transform: scale(0.95); }
+        .btn-archive.archived { background: var(--primary-light); color: var(--primary-color); pointer-events: none; border: 1px solid rgba(255,107,0,0.2); }
+        .btn-edit { background: var(--text-main); color: #FFF; }
+        .btn-edit:active { transform: scale(0.95); }
+        .btn-go { background: #FFF; border: 1px solid var(--border-color); color: var(--text-sub); margin-left: auto;}
+        
+        .spin { animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        /* Text only thumbnail dummy */
+        .text-thumb { width: 100px; height: 75px; border-radius: 8px; background: #333; border: 1px solid rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; padding: 8px; font-size: 10px; font-weight: 800; color: #FFF; line-height: 1.4; text-align: left; overflow: hidden; }
+
+        .more-btn { display: block; width: 100%; text-align: center; padding: 14px; font-size: 14px; font-weight: 800; color: var(--primary-color); background: #FFF; border-bottom: 1px solid var(--border-color); text-decoration: none; transition: 0.2s;}
+        .more-btn:active { background: #F0F2F5; }
+        .more-btn.disabled { color: #A0A0A0; pointer-events: none; }
+
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background-color: rgba(255,255,255,0.95); backdrop-filter: blur(10px); height: var(--nav-height); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid var(--border-color); z-index: 100; padding-bottom: env(safe-area-inset-bottom, 0px); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-sub); text-decoration: none; font-size: 10px; font-weight: 700; gap: 4px; }
+        .nav-item.active { color: var(--primary-color); }
+        .nav-item svg { width: 24px; height: 24px; fill: currentColor; }
+        .nav-fab { background-color: var(--primary-color); color: white; width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: -30px; box-shadow: 0 4px 12px rgba(255,107,0,0.3); font-size: 32px; line-height: 1; text-decoration: none; border: 4px solid var(--bg-color); }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <!-- Search Header -->
-        <header class="search-header">
-            <div class="search-bar">
-                <span style="color:var(--text-sub);">🔍</span>
-                <input type="text" class="search-input" placeholder="アルバム、クリエイターを検索...">
-            </div>
-            
-            <div class="search-tabs tab-container mt-4">
-                <div class="s-tab active">アルバム</div>
-                <div class="s-tab">クリエイター</div>
-            </div>
-        </header>
 
-        <div class="tab-content">
-            <!-- Albums Tab -->
-            <div class="tab-pane active block">
-                <div class="list-container">
-                    <p class="text-sub text-xs mb-4">人気の神アーカイブ</p>
+        <div class="sticky-head" style="padding-bottom: 12px;">
+            <!-- Headers identical to home.html -->
+            <header class="dash-header" style="box-shadow: none; border-bottom: none; padding-bottom: 0; position:static; background:transparent; backdrop-filter:none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <img src="images/Myalbumlogo.png" alt="MYアルバム" style="height: 48px; width: auto; object-fit: contain; flex-shrink: 0;">
                     
-                    <!-- Album Result Card (Resusing style from home list view logic) -->
-                    <div class="card" style="display:flex; gap:12px; padding:12px; cursor:pointer;" onclick="location.href='album_view.html'">
-                        <img src="images/live.png" style="width:100px; height:70px; border-radius:8px; flex-shrink:0; object-fit:cover;">
-                        <div style="flex:1;">
-                            <div style="font-size:14px; font-weight:600; margin-bottom:4px;">2024 ツアー神シーンまとめ</div>
-                            <div style="font-size:10px; color:var(--text-sub); margin-bottom:8px;">保存: 4,500 / 協力者: 12人</div>
-                            <span class="badge" style="background:var(--primary-color); color:white; border-radius:4px; font-weight:bold; font-size:9px;">Curator Lv.5</span>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px; background: transparent; padding: 0;">
+                            <span style="font-size: 10px; font-weight: 900; color: #FFF; background: var(--primary-color); padding: 2px 6px; border-radius: 12px; line-height: 1; box-shadow: 0 2px 4px rgba(255,107,0,0.2);">Lv.5</span>
+                            <span style="font-size: 12px; font-weight: 900; color: var(--text-main); line-height: 1.1;">TaroCreativeさん</span>
+                        </div>
+                        
+                        <div style="position:relative; width: 38px; height: 38px; background: #FFF; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); cursor: pointer;" onclick="document.getElementById('notif-pop').classList.toggle('active')">
+                            <span style="font-size: 20px;">🔔</span>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Creators Tab -->
-            <div class="tab-pane hidden">
-                <div class="list-container">
-                    
-                    <div class="creator-card">
-                        <div class="c-info">
-                            <img src="images/avatar.png" class="c-avatar" alt="creator">
-                            <div>
-                                <div class="c-name">動画職人太郎 <span style="color:var(--primary-color); font-size:11px;">✓</span></div>
-                                <div class="c-stats">フォロワー 1.2M • 投稿件数 340</div>
-                            </div>
-                        </div>
-                        <button class="btn btn-outline btn-sm" style="width:auto; border-radius:20px;">フォロー</button>
+                <div style="width: 100%; position: relative; display: flex; align-items: center; background: rgba(0,0,0,0.03); border-radius: 12px; padding: 4px 12px;">
+                    <select class="album-select" style="border:none;background:transparent;width:100%;padding-right:20px;font-size:16px;font-weight:900;outline:none;-webkit-appearance:none;appearance:none;color:var(--text-main);">
+                        <option value="✓公式 あおいちゃん推し活HUB">✓公式 あおいちゃん推し活HUB</option>
+                        <option value="✓公式 みどりちゃん応援隊">✓公式 みどりちゃん応援隊</option>
+                    </select>
+                    <div style="position: absolute; right: 12px; pointer-events: none;">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="var(--text-main)"><path d="M7 10l5 5 5-5z"/></svg>
                     </div>
+                </div>
+            </header>
 
-                    <div class="creator-card">
-                        <div class="c-info">
-                            <img src="images/avatar.png" class="c-avatar" alt="creator">
-                            <div>
-                                <div class="c-name">ハル@推し活</div>
-                                <div class="c-stats">フォロワー 12K • 投稿件数 84</div>
-                            </div>
-                        </div>
-                        <button class="btn btn-primary btn-sm" style="width:auto; border-radius:20px;">フォロー中</button>
-                    </div>
-                    
+            <div class="toast" id="archiveToast">📥 アーカイブしました</div>
+
+            <div class="search-row" style="padding-top: 12px; padding-bottom: 0;">
+                <div class="search-box" style="background: #EAE8F2;">
+                    <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                    <input type="text" id="searchInput" class="search-input" placeholder="推し名、配信日、神シーン等で検索">
+                    <div class="clear-btn" id="clearBtn" onclick="document.getElementById('searchInput').value=''">✕</div>
                 </div>
             </div>
         </div>
 
-        <!-- Bottom Navigation -->
-        <nav class="bottom-nav">
-             <a href="home.html" class="nav-item">
-                 <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-                 ホーム
-             </a>
-             <a href="search.html" class="nav-item active">
-                 <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-                 検索
-             </a>
-             <a href="album_edit.html" class="nav-fab">+</a>
-             <a href="payment.html" class="nav-item">
-                 <svg viewBox="0 0 24 24"><path d="M21 18v1H3v-1h18zM3 13h18v-2H3v2zm0-5h18V6H3v2z"/></svg>
-                 収益
-             </a>
-             <a href="profile.html" class="nav-item">
-                 <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                 👤
-             </a>
-         </nav>
+        <div class="content-area" style="padding: 0;">
+            
+            <!-- MYアルバム -->
+            <div class="feed-sec" id="sec-myal">
+                <div class="platform-header">
+                    <div class="ph-icon myal"><img src="images/Myalbumlogo_small.png" style="width:16px; height:16px; object-fit:contain;"></div> MYアルバム限定コンテンツ
+                </div>
+                <div class="feed-list">
+                    <div class="feed-item"><img class="fi-thumb" src="images/aoi_thumbnails/aoi_fan_meeting.png" alt="thumbnail"><div class="fi-body"><div class="fi-title">[蒼くみ] 秘蔵！ファンミの裏側大公開！</div><div class="fi-date">2026/3/20 12:05 <span class="new-tag">NEW</span></div><div class="fi-type">🎥 動画</div><div class="fi-actions"><button class="action-btn btn-archive" onclick="doArchive(this)">アーカイブ</button><button class="action-btn btn-edit" onclick="location.href='video_edit.html'">アーカイブ&編集</button><button class="action-btn btn-go" onclick="window.open('#','_blank')">MYアルバムに行く</button></div></div></div>
+                    <div class="feed-item"><img class="fi-thumb" src="images/aoi_thumbnails/aoi_lesson_tired.png" alt="thumbnail"><div class="fi-body"><div class="fi-title">[蒼くみ] レッスン終わりのクタクタトーク</div><div class="fi-date">2026/2/28 23:04</div><div class="fi-type">🎥 動画</div><div class="fi-actions"><button class="action-btn btn-archive" onclick="doArchive(this)">アーカイブ</button><button class="action-btn btn-edit" onclick="location.href='video_edit.html'">アーカイブ&編集</button><button class="action-btn btn-go" onclick="window.open('#','_blank')">MYアルバムに行く</button></div></div></div>
+                    <div class="feed-item"><img class="fi-thumb" src="images/aoi_thumbnails/aoi_costume_fitting.png" alt="thumbnail"><div class="fi-body"><div class="fi-title">[蒼くみ] 新作衣装のフィッティング風景</div><div class="fi-date">2026/2/11 5:35</div><div class="fi-type">🖼️ 画像</div><div class="fi-actions"><button class="action-btn btn-archive" onclick="doArchive(this)">アーカイブ</button><button class="action-btn btn-edit" onclick="location.href='photo_edit.html'">アーカイブ&編集</button><button class="action-btn btn-go" onclick="window.open('#','_blank')">MYアルバムに行く</button></div></div></div>
+                    <div class="feed-item"><img class="fi-thumb" src="images/aoi_thumbnails/aoi_limited_thumbnail.png" alt="thumbnail"><div class="fi-body"><div class="fi-title">[蒼くみ] お気に入りカフェでの一枚</div><div class="fi-date">2026/1/11 4:08</div><div class="fi-type">🖼️ 画像</div><div class="fi-actions"><button class="action-btn btn-archive" onclick="doArchive(this)">アーカイブ</button><button class="action-btn btn-edit" onclick="location.href='photo_edit.html'">アーカイブ&編集</button><button class="action-btn btn-go" onclick="window.open('#','_blank')">MYアルバムに行く</button></div></div></div>
+                    <div class="feed-item"><img class="fi-thumb" src="images/aoi_thumbnails/aoi_summer_live.png" alt="thumbnail"><div class="fi-body"><div class="fi-title">[蒼くみ] 昨年の夏ライブ、奇跡の瞬間</div><div class="fi-date">2025/8/5 4:08</div><div class="fi-type">🎥 動画</div><div class="fi-actions"><button class="action-btn btn-archive" onclick="doArchive(this)">アーカイブ</button><button class="action-btn btn-edit" onclick="location.href='video_edit.html'">アーカイブ&編集</button><button class="action-btn btn-go" onclick="window.open('#','_blank')">MYアルバムに行く</button></div></div></div>
+                </div>
+                <a href="#" class="more-btn">&gt;&gt;&gt;もっと見る</a>
+            </div>
+
+            <!-- Instagram -->
+            <div class="feed-sec" id="sec-ig">
+                <div class="platform-header">
+                    <div class="ph-icon is-img"><img src="images/icon/Instagram.png" alt="Instagram"></div> Instagram
+                </div>
+                <div class="feed-list">
+                    <div class="feed-item large-thumb"><img class="fi-thumb" src="images/aoi_thumbnails/aoi_instagram_post.png" alt="thumbnail"><div class="fi-body"><div class="fi-date">2026/3/20 12:05 <span class="new-tag">NEW</span></div><div class="fi-type">🖼️ 画像</div><div class="fi-actions"><button class="action-btn btn-archive" onclick="doArchive(this)">アーカイブ</button><button class="action-btn btn-edit" onclick="location.href='photo_edit.html'">アーカイブ&編集</button><button class="action-btn btn-go" onclick="window.open('#','_blank')">Instagramに行く</button></div></div></div>
+                    <div class="feed-item large-thumb"><img class="fi-thumb" src="images/aoi_thumbnails/aoi_instagram_post.png" alt="thumbnail"><div class="fi-body"><div class="fi-date">2026/2/28 23:04</div><div class="fi-type">🎥 動画</div><div class="fi-actions"><button class="action-btn btn-archive" onclick="doArchive(this)">アーカイブ</button><button class="action-btn btn-edit" onclick="location.href='video_edit.html'">アーカイブ&編集</button><button class="action-btn btn-go" onclick="window.open('#','_blank')">Instagramに行く</button></div></div></div>
+                    <div class="feed-item large-thumb"><img class="fi-thumb" src="images/aoi_thumbnails/aoi_instagram_post.png" alt="thumbnail"><div class="fi-body"><div class="fi-date">2026/2/11 5:35</div><div class="fi-type">🖼️ 画像</div><div class="fi-actions"><button class="action-btn btn-archive" onclick="doArchive(this)">アーカイブ</button><button class="action-btn btn-edit" onclick="location.href='photo_edit.html'">アーカイブ&編集</button><button class="action-btn btn-go" onclick="window.open('#','_blank')">Instagramに行く</button></div></div></div>
+                    <div class="feed-item large-thumb"><img class="fi-thumb" src="images/aoi_thumbnails/aoi_instagram_post.png" alt="thumbnail"><div class="fi-body"><div class="fi-date">2026/1/11 4:08</div><div class="fi-type">🖼️ 画像</div><div class="fi-actions"><button class="action-btn btn-archive" onclick="doArchive(this)">アーカイブ</button><button class="action-btn btn-edit" onclick="location.href='photo_edit.html'">アーカイブ&編集</button><button class="action-btn btn-go" onclick="window.open('#','_blank')">Instagramに行く</button></div></div></div>
+                    <div class="feed-item large-thumb"><img class="fi-thumb" src="images/aoi_thumbnails/aoi_instagram_post.png" alt="thumbnail"><div class="fi-body"><div class="fi-date">2025/8/5 4:08</div><div class="fi-type">🎥 動画</div><div class="fi-actions"><button class="action-btn btn-archive" onclick="doArchive(this)">アーカイブ</button><button class="action-btn btn-edit" onclick="location.href='video_edit.html'">アーカイブ&編集</button><button class="action-btn btn-go" onclick="window.open('#','_blank')">Instagramに行く</button></div></div></div>
+                </div>
+                <a href="#" class="more-btn">&gt;&gt;&gt;もっと見る</a>
+            </div>
+
+            <!-- X -->
+            <div class="feed-sec">
+                <div class="platform-header">
+                    <div class="ph-icon is-img"><img src="images/icon/X.png" alt="X"></div> X
+                </div>
+                <div class="feed-list">
+                    <div class="feed-item">
+                        <div class="text-thumb">本日もお疲れ様でした！明日の撮影も頑張るぞー！！✨</div>
+                        <div class="fi-body"><div class="fi-date">2026/3/18 3:23 <span class="new-tag">NEW</span></div><div class="fi-type">📝 テキスト</div><div class="fi-actions"><button class="action-btn btn-go" onclick="window.open('#','_blank')">Xに行く</button></div></div>
+                    </div>
+                    <div class="feed-item large-thumb"><img class="fi-thumb" src="images/aoi_thumbnails/aoi_x_post.png" alt="thumbnail"><div class="fi-body"><div class="fi-date">2026/3/16 23:04</div><div class="fi-type">🖼️ 画像</div><div class="fi-actions"><button class="action-btn btn-archive" onclick="doArchive(this)">アーカイブ</button><button class="action-btn btn-edit" onclick="location.href='photo_edit.html'">アーカイブ&編集</button><button class="action-btn btn-go" onclick="window.open('#','_blank')">Xに行く</button></div></div></div>
+                    <div class="feed-item large-thumb"><img class="fi-thumb" src="images/aoi_thumbnails/aoi_x_post.png" alt="thumbnail"><div class="fi-body"><div class="fi-date">2026/3/15 5:35</div><div class="fi-type">🖼️ 画像</div><div class="fi-actions"><button class="action-btn btn-archive" onclick="doArchive(this)">アーカイブ</button><button class="action-btn btn-edit" onclick="location.href='photo_edit.html'">アーカイブ&編集</button><button class="action-btn btn-go" onclick="window.open('#','_blank')">Xに行く</button></div></div></div>
+                    <div class="feed-item large-thumb"><img class="fi-thumb" src="images/aoi_thumbnails/aoi_x_post.png" alt="thumbnail"><div class="fi-body"><div class="fi-date">2026/3/13 4:08</div><div class="fi-type">🖼️ 画像</div><div class="fi-actions"><button class="action-btn btn-archive" onclick="doArchive(this)">アーカイブ</button><button class="action-btn btn-edit" onclick="location.href='photo_edit.html'">アーカイブ&編集</button><button class="action-btn btn-go" onclick="window.open('#','_blank')">Xに行く</button></div></div></div>
+                    <div class="feed-item">
+                        <div class="text-thumb">やっと美容院行けた✂️サッパリしたよ〜</div>
+                        <div class="fi-body"><div class="fi-date">2025/3/11 4:08</div><div class="fi-type">📝 テキスト</div><div class="fi-actions"><button class="action-btn btn-go" onclick="window.open('#','_blank')">Xに行く</button></div></div>
+                    </div>
+                </div>
+                <a href="#" class="more-btn">&gt;&gt;&gt;もっと見る</a>
+            </div>
+
+            <!-- YouTube -->
+            <div class="feed-sec">
+                <div class="platform-header">
+                    <div class="ph-icon is-img"><img src="images/icon/Youtube.png" alt="YouTube"></div> YouTube
+                </div>
+                <div class="feed-list">
+                    <div class="feed-item"><img class="fi-thumb" src="images/aoi_thumbnails/aoi_youtube_thumbnail.png" alt="thumbnail"><div class="fi-body"><div class="fi-title">[蒼くみ] 【神企画】メンバー全員でドッキリ仕掛けてみた！</div><div class="fi-date">2026/3/17 20:01 <span class="new-tag">NEW</span></div><div class="fi-type">🎥 動画</div><div class="fi-actions"><button class="action-btn btn-archive" onclick="doArchive(this)">アーカイブ</button><button class="action-btn btn-edit" onclick="location.href='video_edit.html'">アーカイブ&編集</button><button class="action-btn btn-go" onclick="window.open('#','_blank')">YouTubeに行く</button></div></div></div>
+                    <div class="feed-item"><img class="fi-thumb" src="images/aoi_thumbnails/aoi_youtube_thumbnail.png" alt="thumbnail"><div class="fi-body"><div class="fi-title">[蒼くみ] 【踊ってみた】最新曲のサビだけ本気ダンス</div><div class="fi-date">2026/2/28 23:04</div><div class="fi-type">📱 ショート動画</div><div class="fi-actions"><button class="action-btn btn-archive" onclick="doArchive(this)">アーカイブ</button><button class="action-btn btn-edit" onclick="location.href='video_edit.html'">アーカイブ&編集</button><button class="action-btn btn-go" onclick="window.open('#','_blank')">YouTubeに行く</button></div></div></div>
+                    <div class="feed-item"><img class="fi-thumb" src="images/aoi_thumbnails/aoi_youtube_thumbnail.png" alt="thumbnail"><div class="fi-body"><div class="fi-title">[蒼くみ] 【Vlog】休日の過ごし方・完全プライベート密着</div><div class="fi-date">2026/2/11 5:35</div><div class="fi-type">🎥 動画</div><div class="fi-actions"><button class="action-btn btn-archive" onclick="doArchive(this)">アーカイブ</button><button class="action-btn btn-edit" onclick="location.href='video_edit.html'">アーカイブ&編集</button><button class="action-btn btn-go" onclick="window.open('#','_blank')">YouTubeに行く</button></div></div></div>
+                </div>
+                <a href="#" class="more-btn disabled">&gt;&gt;&gt;もっと見る</a>
+            </div>
+
+            <!-- SHOWROOM -->
+            <div class="feed-sec">
+                <div class="platform-header">
+                    <div class="ph-icon is-img"><img src="images/icon/showroom.png" alt="SHOWROOM"></div> SHOWROOM
+                </div>
+                <div class="feed-list">
+                    <div class="feed-item"><img class="fi-thumb" src="images/aoi_thumbnails/aoi_showroom_thumbnail.png" alt="thumbnail"><div class="fi-body"><div class="fi-title">[蒼くみ] 🌟ゲリラ配信！みんなでお話しよう🌟</div><div class="fi-date">2026/3/9 18:45 <span class="new-tag">NEW</span></div><div class="fi-type">🎥 動画</div><div class="fi-actions"><button class="action-btn btn-archive" onclick="doArchive(this)">アーカイブ</button><button class="action-btn btn-edit" onclick="location.href='video_edit.html'">アーカイブ&編集</button><button class="action-btn btn-go" onclick="window.open('#','_blank')">SHOWROOMに行く</button></div></div></div>
+                    <div class="feed-item"><img class="fi-thumb" src="images/aoi_thumbnails/aoi_showroom_thumbnail.png" alt="thumbnail"><div class="fi-body"><div class="fi-title">[蒼くみ] 🌟夜のまったりカラオケ配信🌟パート2</div><div class="fi-date">2026/2/28 23:04</div><div class="fi-type">📱 ショート動画</div><div class="fi-actions"><button class="action-btn btn-archive" onclick="doArchive(this)">アーカイブ</button><button class="action-btn btn-edit" onclick="location.href='video_edit.html'">アーカイブ&編集</button><button class="action-btn btn-go" onclick="window.open('#','_blank')">SHOWROOMに行く</button></div></div></div>
+                </div>
+                <a href="#" class="more-btn disabled">&gt;&gt;&gt;もっと見る</a>
+            </div>
+
+            <!-- TikTok -->
+            <div class="feed-sec">
+                <div class="platform-header">
+                    <div class="ph-icon is-img"><img src="images/icon/Tictok.png" alt="TikTok"></div> TikTok
+                </div>
+                <div class="feed-list">
+                    <div class="feed-item"><img class="fi-thumb" src="images/aoi_thumbnails/aoi_tiktok_thumbnail.png" alt="thumbnail"><div class="fi-body"><div class="fi-title">[蒼くみ] 今流行りの音源で踊ってみた🎵 #蒼くみ</div><div class="fi-date">2026/3/8 8:17 <span class="new-tag">NEW</span></div><div class="fi-type">📱 ショート動画</div><div class="fi-actions"><button class="action-btn btn-archive" onclick="doArchive(this)">アーカイブ</button><button class="action-btn btn-edit" onclick="location.href='video_edit.html'">アーカイブ&編集</button><button class="action-btn btn-go" onclick="window.open('#','_blank')">TikTokに行く</button></div></div></div>
+                    <div class="feed-item"><img class="fi-thumb" src="images/aoi_thumbnails/aoi_tiktok_thumbnail.png" alt="thumbnail"><div class="fi-body"><div class="fi-title">[蒼くみ] メイク中のオフショット💄 リクエスト募集中！</div><div class="fi-date">2026/3/7 23:04</div><div class="fi-type">📱 ショート動画</div><div class="fi-actions"><button class="action-btn btn-archive" onclick="doArchive(this)">アーカイブ</button><button class="action-btn btn-edit" onclick="location.href='video_edit.html'">アーカイブ&編集</button><button class="action-btn btn-go" onclick="window.open('#','_blank')">TikTokに行く</button></div></div></div>
+                    <div class="feed-item"><img class="fi-thumb" src="images/aoi_thumbnails/aoi_tiktok_thumbnail.png" alt="thumbnail"><div class="fi-body"><div class="fi-title">[蒼くみ] ライブ後のハイテンションでご挨拶！✨</div><div class="fi-date">2026/3/6 5:35</div><div class="fi-type">📱 ショート動画</div><div class="fi-actions"><button class="action-btn btn-archive" onclick="doArchive(this)">アーカイブ</button><button class="action-btn btn-edit" onclick="location.href='video_edit.html'">アーカイブ&編集</button><button class="action-btn btn-go" onclick="window.open('#','_blank')">TikTokに行く</button></div></div></div>
+                </div>
+                <a href="#" class="more-btn disabled">&gt;&gt;&gt;もっと見る</a>
+            </div>
+
+        </div>
+
     </div>
-    <script src="app.js"></script>
+
+<script>
+    // Archive Animation logic
+    function doArchive(btn) {
+        if(btn.classList.contains('archived')) return;
+        btn.innerHTML = '<svg class="spin" viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>';
+        btn.style.pointerEvents = 'none';
+        btn.style.opacity = '0.7';
+        
+        setTimeout(() => {
+            btn.classList.add('archived');
+            btn.style.opacity = '1';
+            btn.innerHTML = '✓ アーカイブ済';
+        }, 1000);
+    }
+
+    function handleAlbumChange(val) {
+        if(val === 'CREATE_NEW') {
+            location.href = 'album_create.html';
+        } else {
+            localStorage.setItem('selectedCurrentAlbum', val);
+        }
+    }
+
+    // Initially randomize some archive buttons
+    document.addEventListener('DOMContentLoaded', () => {
+        const archiveBtns = document.querySelectorAll('.btn-archive');
+        function doArchive(btn) {
+            btn.innerHTML = "✓ アーカイブ済み";
+            btn.classList.add("archived");
+            btn.disabled = true;
+            const toast = document.getElementById("archiveToast");
+            toast.classList.add("show");
+            setTimeout(() => { toast.classList.remove("show"); }, 2000);
+        }
+
+        archiveBtns.forEach(btn => {
+            if(Math.random() > 0.6) {
+                btn.classList.add('archived');
+                btn.innerHTML = '✓ アーカイブ済';
+            }
+        });
+
+        // Load albums into header select
+        const select = document.getElementById('headerAlbumSelect');
+        const custom = JSON.parse(localStorage.getItem('myCustomAlbums') || '[]');
+        custom.forEach(al => {
+            if (al.name === 'テストアルバム') return; // Skip test placeholder
+            const opt = document.createElement('option');
+            opt.value = al.name;
+            opt.innerText = al.name;
+            select.appendChild(opt);
+        });
+        const current = localStorage.getItem('selectedCurrentAlbum');
+        if(current && select) select.value = current;
+    });
+</script>
+<script src="nav.js"></script>
 </body>
 </html>
+
