@@ -98,17 +98,22 @@
                     <button class="btn btn-primary btn-sm" style="width: auto;">画像をアップロード</button>
                 </div>
 
-                <div class="input-group">
-                    <label class="input-label">名前</label>
-                    <input type="text" class="input-field" value="山田 太郎">
+                <div class="input-group" style="margin-bottom: 24px;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 8px;">
+                        <label class="input-label" style="margin-bottom:0;">名前 <span style="font-size:10px; font-weight:800; color:#8E8E93; background:#F2F2F7; padding:2px 6px; border-radius:4px; margin-left:8px; vertical-align:middle;">任意</span></label>
+                        <span style="font-size:11px; color:var(--text-sub);">※20文字以内</span>
+                    </div>
+                    <input type="text" id="profile-name" class="input-field" value="山田 太郎" oninput="validateProfile()">
+                    <div id="error-profile-name" class="text-xs mt-1" style="display:none; color:#FF3B30; font-weight:700;"></div>
                 </div>
 
-                <div class="input-group">
-                    <label class="input-label" style="display:flex; justify-content:space-between;">
-                        <span>クリエイターネーム (表示名)</span>
-                        <span style="color:red; font-size:12px;">未認証</span>
-                    </label>
-                    <input type="text" class="input-field" value="TaroCreative">
+                <div class="input-group" style="margin-bottom: 24px;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 8px;">
+                        <label class="input-label" style="margin-bottom:0;">クリエイターネーム (表示名) <span style="font-size:10px; font-weight:800; color:#8E8E93; background:#F2F2F7; padding:2px 6px; border-radius:4px; margin-left:8px; vertical-align:middle;">任意</span></label>
+                        <span style="font-size:11px; color:var(--text-sub);">※20文字以内</span>
+                    </div>
+                    <input type="text" id="creator-name" class="input-field" value="TaroCreative" oninput="validateProfile()">
+                    <div id="error-creator-name" class="text-xs mt-1" style="display:none; color:#FF3B30; font-weight:700;"></div>
                 </div>
 
                 <div class="input-group">
@@ -122,9 +127,13 @@
                     </div>
                 </div>
 
-                <div class="input-group">
-                    <label class="input-label">自己紹介</label>
-                    <textarea class="input-field" placeholder="クリエイターとしての活動内容やビジョンなどを入力してください。"></textarea>
+                <div class="input-group" style="margin-bottom: 24px;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 8px;">
+                        <label class="input-label" style="margin-bottom:0;">自己紹介 <span style="font-size:10px; font-weight:800; color:#8E8E93; background:#F2F2F7; padding:2px 6px; border-radius:4px; margin-left:8px; vertical-align:middle;">任意</span></label>
+                        <span style="font-size:11px; color:var(--text-sub);">※400文字以内</span>
+                    </div>
+                    <textarea id="profile-bio" class="input-field" style="min-height:80px; resize:vertical;" placeholder="ファンおよびキュレーターとしての活動内容や目的などを記入してください。記入いただいた内容はアーティストに共有されます。" oninput="validateProfile()"></textarea>
+                    <div id="error-profile-bio" class="text-xs mt-1" style="display:none; color:#FF3B30; font-weight:700;"></div>
                 </div>
 
                 <div class="input-group">
@@ -136,7 +145,7 @@
                 </div>
 
                 <div class="input-group">
-                    <label class="input-label">登録メールアドレス</label>
+                    <label class="input-label" style="margin-bottom:8px;">登録メールアドレス <span style="font-size:10px; font-weight:800; color:#FFF; background:#FF3B30; padding:2px 6px; border-radius:4px; margin-left:8px; vertical-align:middle;">必須</span></label>
                     <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; background: #F8F8F8; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);">
                         <span style="font-size: 14px; font-weight: 700; color: var(--text-main);">user@example.com</span>
                         <button class="btn btn-outline btn-sm" style="width: auto; padding: 4px 12px; font-weight: 800;" onclick="openEmailChangeModal()">変更</button>
@@ -159,14 +168,15 @@
                         
                         <div class="input-group" style="margin-bottom: 12px;">
                             <label class="input-label">新しいメールアドレス</label>
-                            <input type="email" id="new-email" class="input-field" placeholder="new@example.com">
+                            <input type="email" id="new-email" class="input-field" placeholder="new@example.com" oninput="validateEmailModal()">
                         </div>
                         <div class="input-group" style="margin-bottom: 24px;">
                             <label class="input-label">新しいメールアドレス（確認用）</label>
-                            <input type="email" id="confirm-email" class="input-field" placeholder="new@example.com">
+                            <input type="email" id="confirm-email" class="input-field" placeholder="new@example.com" oninput="validateEmailModal()">
                         </div>
+                        <div id="error-email-modal" class="text-xs mb-4" style="display:none; color:#FF3B30; font-weight:700; text-align:center;"></div>
                         
-                        <button class="btn btn-primary" onclick="submitEmailChange()">認証メールを送信</button>
+                        <button class="btn btn-primary" id="btn-submit-email" onclick="submitEmailChange()">認証メールを送信</button>
                     </div>
                     
                     <!-- Step 2: Verification Sent -->
@@ -186,12 +196,99 @@
     </div>
     
     <script>
+        function validateProfile() {
+            let hasError = false;
+            
+            const nameInput = document.getElementById('profile-name');
+            const nameError = document.getElementById('error-profile-name');
+            if (nameInput.value.length > 20) {
+                nameError.innerText = '20文字以内で入力してください。';
+                nameError.style.display = 'block';
+                nameInput.style.borderColor = '#FF3B30';
+                hasError = true;
+            } else {
+                nameError.style.display = 'none';
+                nameInput.style.borderColor = '';
+            }
+            
+            const cNameInput = document.getElementById('creator-name');
+            const cNameError = document.getElementById('error-creator-name');
+            if (cNameInput.value.length > 20) {
+                cNameError.innerText = '20文字以内で入力してください。';
+                cNameError.style.display = 'block';
+                cNameInput.style.borderColor = '#FF3B30';
+                hasError = true;
+            } else {
+                cNameError.style.display = 'none';
+                cNameInput.style.borderColor = '';
+            }
+            
+            const bioInput = document.getElementById('profile-bio');
+            const bioError = document.getElementById('error-profile-bio');
+            if (bioInput.value.length > 400) {
+                bioError.innerText = '400文字以内で入力してください。';
+                bioError.style.display = 'block';
+                bioInput.style.borderColor = '#FF3B30';
+                hasError = true;
+            } else {
+                bioError.style.display = 'none';
+                bioInput.style.borderColor = '';
+            }
+            
+            const saveBtn = document.querySelector('button[onclick="location.href=\'home.html\'"]');
+            if(saveBtn) {
+                if(hasError) {
+                    saveBtn.style.opacity = '0.5';
+                    saveBtn.style.pointerEvents = 'none';
+                } else {
+                    saveBtn.style.opacity = '1';
+                    saveBtn.style.pointerEvents = 'auto';
+                }
+            }
+        }
+
+        function validateEmailModal() {
+            const e1 = document.getElementById('new-email').value;
+            const e2 = document.getElementById('confirm-email').value;
+            const errorArea = document.getElementById('error-email-modal');
+            const submitBtn = document.getElementById('btn-submit-email');
+            
+            let errorMsg = '';
+            
+            if (e1.length > 0 && !e1.includes('@')) {
+                errorMsg = '有効なメールアドレス（@を含む）を入力してください。';
+            } else if (e2.length > 0 && !e2.includes('@')) {
+                errorMsg = '確認用のメールアドレスも「@」を含む有効な形式で入力してください。';
+            } else if (e1.length > 0 && e2.length > 0 && e1 !== e2) {
+                errorMsg = '確認用メールアドレスが一致しません。';
+            }
+            
+            if (errorMsg) {
+                errorArea.innerText = errorMsg;
+                errorArea.style.display = 'block';
+                submitBtn.style.opacity = '0.5';
+                submitBtn.style.pointerEvents = 'none';
+            } else {
+                errorArea.style.display = 'none';
+                if (!e1 || !e2) {
+                    // Make it look disabled if empty but no error
+                    submitBtn.style.opacity = '0.5';
+                    submitBtn.style.pointerEvents = 'none';
+                } else {
+                    submitBtn.style.opacity = '1';
+                    submitBtn.style.pointerEvents = 'auto';
+                }
+            }
+        }
+
         function openEmailChangeModal() {
             document.getElementById('email-modal').style.display = 'flex';
             document.getElementById('email-step-1').style.display = 'block';
             document.getElementById('email-step-2').style.display = 'none';
             document.getElementById('new-email').value = '';
             document.getElementById('confirm-email').value = '';
+            document.getElementById('error-email-modal').style.display = 'none';
+            validateEmailModal();
         }
         function closeEmailChangeModal() {
             document.getElementById('email-modal').style.display = 'none';
@@ -200,14 +297,11 @@
             const e1 = document.getElementById('new-email').value;
             const e2 = document.getElementById('confirm-email').value;
             if(!e1 || !e2) {
-                alert('新しいメールアドレスを入力してください。');
-                return;
+                return; // Disabled anyway
             }
-            if(e1 !== e2) {
-                alert('確認用メールアドレスが一致しません。再度入力してください。');
-                return;
+            if(!e1.includes('@') || !e2.includes('@') || e1 !== e2) {
+                return; // Validated natively
             }
-            // Transition to Step 2
             document.getElementById('email-step-1').style.display = 'none';
             document.getElementById('email-step-2').style.display = 'block';
         }
