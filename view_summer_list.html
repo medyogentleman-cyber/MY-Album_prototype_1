@@ -213,11 +213,14 @@
                         <div class="li-actions" onclick="event.stopPropagation()">
                             <button class="li-btn" onclick="toggleVolume(this)">
                                 <span style="font-size:16px;">🔊</span>
-                                <span>${likesCount}</span>
+                                <span class="count">${likesCount}</span>
                             </button>
-                            <button class="li-btn" onclick="openShare()">
+                            <button class="li-btn tipping-btn" style="background:#FFF0E6; color:#FF6B00; border-color:rgba(255,107,0,0.3);" onclick="openTipping(event)">
+                                <span style="font-size:14px;">🎁</span>
+                                <span>投げ銭</span>
+                            </button>
+                            <button class="li-btn" style="padding: 6px 10px;" onclick="openShare()">
                                 <span style="font-size:14px;">🔗</span>
-                                <span>シェア</span>
                             </button>
                         </div>
                     </div>
@@ -229,7 +232,13 @@
         // Action Logic
         function toggleVolume(btn) {
             btn.classList.toggle('active');
-            const countSpan = btn.querySelectorAll('span')[1];
+            if (btn.classList.contains('active')) {
+                btn.style.animation = 'none';
+                btn.offsetHeight;
+                btn.style.animation = 'pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                if(typeof spawnLikeParticles === 'function') spawnLikeParticles(btn);
+            }
+            const countSpan = btn.querySelector('.count');
             let current = parseFloat(countSpan.innerText);
             if (btn.classList.contains('active')) {
                 countSpan.innerText = (current + 0.1).toFixed(1) + 'k';
@@ -246,6 +255,216 @@
         function closeShare() {
             document.getElementById('sysOverlay').classList.remove('show');
             document.getElementById('shareModal').classList.remove('show');
+        }
+    </script>
+    <!-- Tipping Flow Modals Common -->
+    <style>
+        .tipping-modal { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%); width: 100%; max-width: 430px; background: #FFF; border-radius: 24px 24px 0 0; padding: 24px 20px calc(var(--nav-height, 80px) + 20px); z-index: 200; transition: 0.3s cubic-bezier(0.1, 0.8, 0.2, 1); box-shadow: 0 -10px 40px rgba(0,0,0,0.1); }
+        .tipping-modal.show { transform: translateX(-50%) translateY(0); }
+        .amount-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+        .amount-btn { background: #FFF; border: 2px solid #FFEDDF; color: #444; font-size: 14px; font-weight: 800; padding: 12px 0; border-radius: 12px; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .amount-btn:active { background: #FFEDDF; transform: scale(0.95); }
+        .free-amount-wrap { display: flex; align-items: center; gap: 8px; background: #F8F9FB; padding: 8px 12px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); }
+        .free-amount-input { flex: 1; border: none; background: transparent; font-size: 16px; font-weight: 800; outline: none; text-align: right; color: #333; }
+        .submit-free { padding: 10px 20px; background: var(--primary-color, #FF6B00); color: #FFF; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; }
+        .submit-free:active { opacity: 0.8; }
+
+        .dmc-pay-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0A0A0A; z-index: 300; display: none; flex-direction: column; opacity: 0; transition: 0.3s; color: #FFF; }
+        .dmc-pay-screen.show { display: flex; opacity: 1; }
+        .dmc-header { padding: 20px; font-size: 20px; font-weight: 900; text-align: center; border-bottom: 1px solid #222; letter-spacing: 2px; }
+        .dmc-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .dmc-amount { font-size: 44px; font-weight: 900; color: #00E676; margin-top: 10px; text-shadow: 0 0 20px rgba(0,230,118,0.3); }
+        .dmc-pay-btn { background: #00E676; color: #111; font-size: 18px; font-weight: 900; padding: 18px 40px; border-radius: 30px; border: none; cursor: pointer; width: 100%; max-width: 300px; margin-bottom: 20px; transition: 0.2s; box-shadow: 0 8px 24px rgba(0,230,118,0.3); }
+        .dmc-pay-btn:active { transform: scale(0.95); box-shadow: 0 4px 12px rgba(0,230,118,0.2); }
+        .dmc-cancel-btn { background: transparent; color: #888; border: none; font-size: 14px; font-weight: 800; padding: 10px; cursor: pointer; }
+
+        .complete-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); background: #FFF; width: 90%; max-width: 340px; border-radius: 28px; padding: 36px 24px 28px; z-index: 400; display: none; flex-direction: column; align-items: center; text-align: center; opacity: 0; transition: 0.3s cubic-bezier(0.1, 0.8, 0.2, 1); box-shadow: 0 24px 48px rgba(0,0,0,0.2); border: 1px solid rgba(0,0,0,0.05); }
+        .complete-popup.show { display: flex; opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        .cp-icon { font-size: 56px; margin-bottom: 20px; animation: bounce 1s ease infinite; line-height: 1; }
+        .cp-title { font-size: 20px; font-weight: 900; color: #333; margin-bottom: 12px; }
+        .cp-desc { font-size: 14px; font-weight: 600; color: #666; margin-bottom: 28px; line-height: 1.5; }
+        .cp-close-btn { background: #F0F2F5; color: #333; font-size: 15px; font-weight: 900; padding: 14px 32px; border-radius: 16px; border: none; cursor: pointer; transition: 0.2s; width: 100%; }
+        .cp-close-btn:active { background: #E4E6E9; }
+        
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+
+        .overlay-tipping { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 150; display: none; opacity: 0; transition: 0.3s; backdrop-filter: blur(2px); }
+        .overlay-tipping.show { display: block; opacity: 1; }
+    </style>
+
+    <div class="overlay-tipping" id="tippingOverlay" onclick="closeTippingFlow()"></div>
+    <div class="tipping-modal" id="amountModal">
+        <div style="width: 40px; height: 4px; background: #E0E0E0; border-radius: 2px; margin: 0 auto 16px;"></div>
+        <div style="font-size: 16px; font-weight: 900; margin-bottom: 20px; text-align: center; color: #333;">応援する金額を選択</div>
+        <div class="amount-grid">
+            <button class="amount-btn" onclick="selectAmount(50)">50円</button>
+            <button class="amount-btn" onclick="selectAmount(100)">100円</button>
+            <button class="amount-btn" onclick="selectAmount(300)">300円</button>
+            <button class="amount-btn" onclick="selectAmount(500)">500円</button>
+            <button class="amount-btn" onclick="selectAmount(1000)">1000円</button>
+            <button class="amount-btn" onclick="selectAmount(5000)">5000円</button>
+            <button class="amount-btn" onclick="selectAmount(10000)">10000円</button>
+        </div>
+        <div class="free-amount-wrap">
+            <input type="number" id="freeAmount" placeholder="自由入力" class="free-amount-input">
+            <span style="font-size: 14px; font-weight: 800; color:#333;">円</span>
+            <button class="submit-free" onclick="submitFreeAmount()">決定</button>
+        </div>
+    </div>
+
+    <div class="dmc-pay-screen" id="dmcPayScreen">
+        <div class="dmc-header">DMC PAY</div>
+        <div class="dmc-body">
+            <div style="font-size: 14px; color: #aaa; margin-bottom: 8px;">お支払い金額</div>
+            <div class="dmc-amount" id="dmcAmountText">0円</div>
+            <div style="margin-top: 40px; width: 100%; display: flex; flex-direction: column; align-items: center;">
+                <button class="dmc-pay-btn" onclick="processDmcPay()">決済する</button>
+                <button class="dmc-cancel-btn" onclick="closeDmcPay()">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="complete-popup" id="completePopup">
+        <div class="cp-icon">🎉</div>
+        <div class="cp-title">投げ銭が完了しました！</div>
+        <div class="cp-desc">クリエイターへの応援ありがとうございます。</div>
+        <button class="cp-close-btn" onclick="closeTippingFlow()">閉じる</button>
+    </div>
+
+    <script>
+        let selectedTippingAmount = 0;
+
+        // --- Animations ---
+        function spawnLikeParticles(btn) {
+            const rect = btn.getBoundingClientRect();
+            const emojis = ['🎵', '✨', '💖', '🎵', '😍'];
+            for(let i=0; i<5; i++) {
+                let el = document.createElement('div');
+                el.innerText = emojis[Math.floor(Math.random()*emojis.length)];
+                el.style.position = 'fixed';
+                el.style.left = (rect.left + rect.width/2) + 'px';
+                el.style.top = (rect.top + rect.height/2) + 'px';
+                el.style.fontSize = (Math.random()*10 + 14) + 'px';
+                el.style.pointerEvents = 'none';
+                el.style.zIndex = '9999';
+                el.style.transition = 'all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1)';
+                el.style.opacity = '1';
+                el.style.transform = 'translate(-50%, -50%) scale(0.5)';
+                document.body.appendChild(el);
+
+                el.getBoundingClientRect(); // reflow
+
+                const angle = (Math.random() - 0.5) * Math.PI; 
+                const distance = Math.random() * 40 + 40;
+                const tx = Math.sin(angle) * distance;
+                const ty = -Math.cos(angle) * distance - 20;
+
+                el.style.transform = `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(1.2)`;
+                el.style.opacity = '0';
+
+                setTimeout(() => {
+                    if(el.parentNode) el.parentNode.removeChild(el);
+                }, 800);
+            }
+        }
+
+        function spawnConfetti() {
+            const colors = ['#FF3B30', '#FF9500', '#FFCC00', '#4CD964', '#5AC8FA', '#007AFF', '#5856D6', '#FF2D55'];
+            for(let i=0; i<50; i++) {
+                let el = document.createElement('div');
+                const isEmoji = Math.random() > 0.8;
+                if(isEmoji) {
+                    const emojis = ['🎉', '✨', '🎁', '💖', '💸'];
+                    el.innerText = emojis[Math.floor(Math.random()*emojis.length)];
+                    el.style.fontSize = (Math.random()*14 + 16) + 'px';
+                } else {
+                    el.style.width = (Math.random()*8 + 6) + 'px';
+                    el.style.height = (Math.random()*8 + 6) + 'px';
+                    el.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+                    el.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                }
+                
+                el.style.position = 'fixed';
+                el.style.left = '50%';
+                el.style.top = '50%';
+                el.style.pointerEvents = 'none';
+                el.style.zIndex = '9999';
+                el.style.transition = 'all 1.2s cubic-bezier(0.1, 0.8, 0.2, 1)';
+                el.style.opacity = '1';
+                el.style.transform = 'translate(-50%, -50%) scale(0.1)';
+                document.body.appendChild(el);
+
+                el.getBoundingClientRect(); // reflow
+
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.random() * 250 + 60;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance;
+                const rot = Math.random() * 720 - 360;
+
+                el.style.transform = `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) rotate(${rot}deg) scale(1.5)`;
+                el.style.opacity = '0';
+
+                setTimeout(() => {
+                    if(el.parentNode) el.parentNode.removeChild(el);
+                }, 1200);
+            }
+        }
+
+        function openTipping(e) {
+            if(e) e.stopPropagation();
+            document.getElementById('tippingOverlay').classList.add('show');
+            document.getElementById('amountModal').classList.add('show');
+        }
+
+        function closeTippingFlow() {
+            document.getElementById('tippingOverlay').classList.remove('show');
+            document.getElementById('amountModal').classList.remove('show');
+            document.getElementById('completePopup').classList.remove('show');
+            document.getElementById('freeAmount').value = '';
+        }
+
+        function selectAmount(amount) {
+            selectedTippingAmount = amount;
+            showDmcPay();
+        }
+
+        function submitFreeAmount() {
+            const val = document.getElementById('freeAmount').value;
+            if(val && parseInt(val) > 0) {
+                selectedTippingAmount = parseInt(val);
+                showDmcPay();
+            } else {
+                alert("金額を正しく入力してください");
+            }
+        }
+
+        function showDmcPay() {
+            document.getElementById('amountModal').classList.remove('show');
+            document.getElementById('tippingOverlay').classList.remove('show');
+            document.getElementById('dmcAmountText').innerText = selectedTippingAmount.toLocaleString() + '円';
+            document.getElementById('dmcPayScreen').classList.add('show');
+        }
+
+        function closeDmcPay() {
+            document.getElementById('dmcPayScreen').classList.remove('show');
+        }
+
+        function processDmcPay() {
+            const btn = document.querySelector('.dmc-pay-btn');
+            btn.innerText = '決済中...';
+            btn.style.opacity = '0.7';
+            btn.disabled = true;
+            setTimeout(() => {
+                btn.innerText = '決済する';
+                btn.style.opacity = '1';
+                btn.disabled = false;
+                document.getElementById('dmcPayScreen').classList.remove('show');
+                document.getElementById('tippingOverlay').classList.add('show');
+                document.getElementById('completePopup').classList.add('show');
+                setTimeout(() => { spawnConfetti(); }, 100);
+            }, 1000);
         }
     </script>
 <script src="nav.js"></script>
