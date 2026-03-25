@@ -3,314 +3,569 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>MYストレージ連携 - MYアルバム</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>MYストレージ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            --nav-height: 80px;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Noto+Sans+JP:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; background-color: #f7fafc; -webkit-tap-highlight-color: transparent; padding-bottom: 100px; }
+        .app-container { max-width: 430px; margin: 0 auto; background: #ffffff; min-height: 100vh; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
+
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .pulse-border { animation: pulseBorder 2s infinite; }
+        @keyframes pulseBorder {
+            0% { border-color: rgba(37, 99, 235, 0.4); }
+            50% { border-color: rgba(37, 99, 235, 1); box-shadow: 0 0 10px rgba(37, 99, 235, 0.2); }
+            100% { border-color: rgba(37, 99, 235, 0.4); }
         }
-        body { padding-bottom: calc(var(--nav-height) + 20px); -webkit-tap-highlight-color: transparent; }
-        .app-container { max-width: 430px; margin: 0 auto; background: var(--bg-color); min-height: 100vh;}
 
-        .h-header {
-            background: #FFF; padding: 16px; display: flex; align-items: center; justify-content: space-between;
-            position: sticky; top: 0; z-index: 90; box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-            border-bottom: 1px solid var(--border-color);
-        }
-        .h-title { font-size: 16px; font-weight: 900; color: var(--text-main); }
-        .back-btn { font-size: 24px; color: var(--text-main); text-decoration: none; font-weight: 900; width: 32px; height: 32px; display: flex; align-items: center;}
-
-        .p-area { padding: 16px; }
-
-        .info-box {
-            background: rgba(255,107,0,0.05); border: 1px solid rgba(255,107,0,0.2);
-            border-radius: 12px; padding: 16px; margin-bottom: 24px;
-        }
-        .info-box p { font-size: 13px; font-weight: 700; color: var(--text-main); line-height: 1.5; margin: 0; }
-
-        .s-card {
-            background: #FFF; border-radius: 16px; border: 1px solid var(--border-color);
-            padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.03);
-        }
-        .sc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .sc-title { font-size: 15px; font-weight: 900; color: var(--text-main); }
-        
-        .badge { display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 900; }
-        .badge-active { background: var(--primary-color); color: #FFF; }
-        .badge-blue { background: #E5F0FF; color: #0075FF; }
-        .badge-orange { background: rgba(255,107,0,0.1); color: var(--primary-color); }
-        .badge-green { background: rgba(52,199,89,0.1); color: #34C759; }
-        .badge-red { background: rgba(255,59,48,0.1); color: #FF3B30; }
-        .badge-gray { background: #F2F2F7; color: var(--text-sub); }
-
-        .progress-bar-wrap { width: 100%; height: 8px; background: #EAE8F2; border-radius: 4px; margin-top: 8px; overflow: hidden; }
-        .progress-bar-fill { height: 100%; background: var(--primary-color); border-radius: 4px; }
-        
-        .c-app-card {
-            background: #FFF; border-radius: 16px; border: 1px solid var(--border-color);
-            padding: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 16px;
-        }
-        .c-app-icon { width: 48px; height: 48px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--bg-color); border-radius: 12px;}
-        .c-app-icon svg { width: 24px; height: 24px; fill: var(--text-main); }
-        .c-app-info { flex: 1; }
-        .c-app-actions { display: flex; gap: 8px; margin-top: 12px; }
-        
-        /* Filter Tabs */
-        .filter-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 16px; -ms-overflow-style: none; scrollbar-width: none;}
-        .filter-tabs::-webkit-scrollbar { display: none; }
-        .f-tab { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 800; background: #FFF; border: 1px solid var(--border-color); color: var(--text-sub); white-space: nowrap; transition: 0.2s;}
-        .f-tab.active { background: var(--primary-light); color: var(--primary-color); border-color: rgba(255,107,0,0.3); }
-
-        /* Reservation List */
-        .r-item { background: #FFF; border-radius: 16px; border: 1px solid var(--border-color); padding: 16px; margin-bottom: 12px; display: block; }
-        .r-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-        .r-title { font-size: 14px; font-weight: 900; color: var(--text-main); word-break: break-all; margin-bottom: 4px; line-height: 1.4; }
-        .r-meta { font-size: 11px; color: var(--text-sub); font-weight: 600; margin-bottom: 2px;}
-        .r-desc { font-size: 11px; color: var(--text-main); font-weight: 700; margin: 12px 0; background: var(--bg-color); padding: 8px 12px; border-radius: 8px;}
-        .r-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
-
-        /* Toast */
-        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(0,0,0,0.8); color: white; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 800; opacity: 0; visibility: hidden; transition: 0.3s; z-index: 200; box-shadow: 0 4px 12px rgba(0,0,0,0.2);}
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(17, 24, 39, 0.9); color: white; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 800; opacity: 0; visibility: hidden; transition: 0.3s; z-index: 200; box-shadow: 0 4px 12px rgba(0,0,0,0.2); pointer-events: none;}
         .toast.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
 
-        /* Unified Bottom Nav */
-        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background-color: rgba(255,255,255,0.95); backdrop-filter: blur(10px); height: var(--nav-height); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid var(--border-color); z-index: 100; padding-bottom: env(safe-area-inset-bottom, 0px); }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-sub); text-decoration: none; font-size: 10px; font-weight: 700; gap: 4px; transition: 0.2s;}
-        .nav-item.active { color: var(--primary-color); }
-        .nav-item svg { width: 24px; height: 24px; fill: currentColor; }
-        .nav-fab { background-color: var(--primary-color); color: white; width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: -30px; box-shadow: 0 4px 12px rgba(255,107,0,0.3); font-size: 32px; line-height: 1; text-decoration: none; border: 4px solid var(--bg-color); }
+        .progress-bar-fill { height: 100%; background: #2563eb; border-radius: 999px; width: 0%; transition: width 0.3s ease; }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800">
     <div class="app-container">
         
-        <header class="h-header">
-            <a href="home.html" class="back-btn">‹</a>
-            <div class="h-title">MYストレージ連携</div>
-            <div style="width: 32px;"></div>
+        <!-- Header -->
+        <header class="bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-50 border-b border-slate-200">
+            <a href="home.html" class="text-2xl font-black text-slate-800 w-8 h-8 flex items-center justify-center hover:bg-slate-100 rounded-full transition-colors">‹</a>
+            <div class="text-base font-black text-slate-800">MYストレージ</div>
+            <div class="w-8"></div>
         </header>
 
-        <div class="p-area">
+        <!-- Main Content Area -->
+        <div class="p-4">
             
-            <div class="info-box">
-                <p>大容量ファイルはスマホに直接保存できません。<br>予約後、別アプリ<strong>「PC版 MYストレージ」</strong>から一括で受け取ってください。</p>
+            <!-- Tabs Menu -->
+            <div class="flex space-x-2 bg-slate-100 p-1 rounded-xl mb-6">
+                <button class="tab-btn flex-1 py-2 px-3 text-xs font-bold rounded-lg transition-colors bg-white text-blue-600 shadow-sm" data-target="tab-upload">アップロード</button>
+                <button class="tab-btn flex-1 py-2 px-3 text-xs font-bold rounded-lg transition-colors text-slate-500 hover:text-slate-800" data-target="tab-history">履歴・管理</button>
+                <button class="tab-btn flex-1 py-2 px-3 text-xs font-bold rounded-lg transition-colors text-slate-500 hover:text-slate-800" data-target="tab-download">ダウンロード</button>
             </div>
 
-            <!-- 1. Download Reservation List (Moved to Top) -->
-            <h2 style="font-size: 16px; font-weight: 900; margin-bottom: 8px;">ダウンロード予約一覧</h2>
-            <p style="font-size: 11px; color: var(--text-sub); font-weight: 600; margin-bottom: 16px;">スマホでは予約状況のみ確認できます。受け取りはPC版 MYストレージ で行ってください。</p>
+            <!-- TAB 1: UPLOAD -->
+            <div id="tab-upload" class="tab-content active">
+                <div class="mb-6">
+                    <h2 class="text-lg font-black text-slate-800 mb-1">ファイルをアップロードする</h2>
+                    <p class="text-xs font-bold text-slate-500 mb-1">ドラッグ＆ドロップで大容量ファイルをアップロード。ご契約中は無期限で保存・URL共有できます。</p>
+                    <p class="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded inline-block">※1ファイルあたりの最大アップロード容量は32GBまでとなります。</p>
+                </div>
 
-            <div style="background:#FFF; padding:12px 16px; border-radius:12px; border:1px solid var(--border-color); margin-bottom:16px; font-size:11px; font-weight:800; display:flex; flex-wrap:wrap; gap:12px;">
-                <span style="color:#0075FF;">準備中: 1</span>
-                <span style="color:var(--primary-color);">ダウンロード待ち: 1</span>
-                <span style="color:#34C759;">完了: 1</span>
-                <span style="color:#FF3B30;">期限切れ: 1</span>
-                <span style="color:var(--text-sub);">キャンセル: 1</span>
+                <!-- Drop Area -->
+                <div id="drop-area" class="border-2 border-dashed border-blue-300 bg-blue-50 hover:bg-blue-100 transition-colors rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer mb-2 text-center pulse-border" onclick="document.getElementById('file-input').click()">
+                    <svg class="w-12 h-12 text-blue-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                    <div class="text-sm font-black text-blue-700 mb-1">タップしてファイルを選択</div>
+                    <div class="text-xs font-bold text-blue-500/80 mb-1">またはここにドラッグ＆ドロップ</div>
+                    <div class="text-[10px] font-bold text-blue-400">※複数ファイルの一括アップロードも可能です</div>
+                    <input type="file" id="file-input" class="hidden" multiple onchange="handleFileSelect(event)">
+                </div>
+
+                <div class="text-right mb-6">
+                    <span class="text-[11px] font-bold text-blue-600 cursor-pointer hover:underline border border-blue-200 bg-white px-2 py-1 rounded shadow-sm" onclick="simulateUploadBulk()">※デモ：5つのファイルを一括の場合</span>
+                </div>
+
+                <!-- Selected Files & Progress Map -->
+                <!-- Single File Status Area -->
+                <div id="upload-status-area" class="hidden mb-6">
+                    <div class="bg-white border focus:outline-none text-blue-600 text-xs border-slate-200 rounded-xl p-4 shadow-sm">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-black text-slate-700" id="filename-display">video_file_01.mp4</span>
+                            <span class="text-xs font-bold text-slate-500">2.4 GB</span>
+                        </div>
+                        <div class="w-full h-2 bg-slate-100 rounded-full mb-2 overflow-hidden">
+                            <div id="upload-progress-fill" class="progress-bar-fill"></div>
+                        </div>
+                        <div class="flex justify-between items-center text-xs font-bold">
+                            <span id="upload-percent" class="text-blue-600">0%</span>
+                            <span class="text-slate-400">残り約 2分</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bulk Upload Status Area -->
+                <div id="bulk-upload-area" class="hidden mb-6 bg-slate-50 border border-slate-200 rounded-xl p-4 shadow-sm">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-[13px] font-black text-slate-800">5個のファイルをアップロード中...</span>
+                        <span class="text-xs font-bold text-blue-600" id="bulk-overall-percent">0%</span>
+                    </div>
+                    <div class="w-full h-2 bg-slate-200 rounded-full mb-4 overflow-hidden">
+                        <div id="bulk-overall-fill" class="h-full bg-blue-500 transition-all rounded-full" style="width:0%"></div>
+                    </div>
+                    <div class="space-y-1" id="bulk-file-list">
+                        <!-- Items injected by JS -->
+                    </div>
+                </div>
+
+                <!-- Password Setting -->
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6">
+                    <label class="block text-xs font-black text-slate-700 mb-2 flex items-center gap-1">
+                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        ダウンロードパスワード (任意)
+                    </label>
+                    <input type="text" id="upload-password" placeholder="例: 1234" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-semibold text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors">
+                    <p class="text-[10px] text-slate-400 font-bold mt-2">設定すると、ダウンロード時にこのパスワードが必要になります。</p>
+                </div>
+
+                <!-- Result Area -->
+                <div id="upload-result-area" class="hidden bg-blue-50 border border-blue-200 rounded-xl p-4 text-center mb-6">
+                    <div class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 text-white mb-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                    <div class="text-sm font-black text-blue-900 mb-1">アップロード完了！</div>
+                    <div class="text-xs font-bold text-blue-700/80 mb-4">以下のURLをコピーして共有してください</div>
+                    
+                    <div class="flex items-center bg-white border border-blue-200 rounded-lg overflow-hidden mb-4">
+                        <input type="text" readonly value="https://mys.tokyo/d/AbCdEf123" class="w-full px-3 py-2 text-sm font-bold text-slate-600 bg-transparent outline-none">
+                        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-xs font-black transition-colors" onclick="copyToClipboard('https://mys.tokyo/d/AbCdEf123')">コピー</button>
+                    </div>
+
+                    <div class="border-t border-blue-200/60 pt-4 mt-2 text-left">
+                        <p class="text-[11px] font-black text-blue-800 mb-2">または登録外のメールアドレスへ送る</p>
+                        <div class="flex items-center gap-2">
+                            <input type="email" id="direct-share-email" placeholder="宛先メールアドレスを入力" class="flex-1 bg-white border border-blue-200 rounded-lg px-3 py-2 text-sm font-semibold text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors">
+                            <button class="bg-white hover:bg-blue-100 border border-blue-200 text-blue-700 px-4 py-2 rounded-lg text-xs font-black transition-colors whitespace-nowrap shadow-sm" onclick="sendDirectEmailFromUpload()">送信</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button id="btn-do-upload" class="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-4 text-sm font-black shadow-lg shadow-blue-600/20 transition-all hover:scale-[1.02] active:scale-[0.98]" onclick="simulateUpload()">アップロード開始</button>
             </div>
 
-            <div class="filter-tabs" id="r-filters">
-                <button class="f-tab active" onclick="filterList('all', this)">すべて</button>
-                <button class="f-tab" onclick="filterList('prep', this)">準備中</button>
-                <button class="f-tab" onclick="filterList('wait', this)">ダウンロード待ち</button>
-                <button class="f-tab" onclick="filterList('done', this)">完了</button>
-                <button class="f-tab" onclick="filterList('other', this)">その他</button>
-            </div>
-
-            <div id="reservation-list">
-                
-                <!-- Item 1: 準備中 -->
-                <div class="r-item" data-status="prep">
-                    <div class="r-top">
-                        <div class="badge badge-blue">受付済み準備中</div>
-                        <div class="r-meta">期限: 2026/03/22 23:59</div>
+            <!-- TAB 2: HISTORY & MANAGEMENT -->
+            <div id="tab-history" class="tab-content">
+                <!-- Quota Meter -->
+                <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-5 mb-6 text-white shadow-xl">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="text-sm font-black">伝送量・利用状況</div>
+                        <div class="px-2 py-1 bg-white/10 rounded-md text-[10px] font-black border border-white/20">プレミアムプラン</div>
                     </div>
-                    <div class="r-title">TokyoLive_FullCam_01.mov</div>
-                    <div class="r-meta">受付: 2026/03/19 10:15 / サイズ: 28.4GB</div>
-                    <div class="r-desc">受け取り用データを作成中です。完了後にPCで受け取れます。</div>
-                    <div class="r-actions">
-                        <button class="btn btn-outline btn-sm" style="width:auto; border-radius:8px;">詳細</button>
-                        <button class="btn btn-outline btn-sm" style="width:auto; border-radius:8px; color:#FF3B30; border-color:#FF3B30;">キャンセル</button>
+                    
+                    <div class="flex justify-between items-end mb-2">
+                        <div>
+                            <div class="text-[10px] font-bold text-slate-300 mb-1">残りの伝送量 (今月)</div>
+                            <div class="text-2xl font-black">510.5<span class="text-sm font-bold text-slate-400 ml-1">GB</span></div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-[10px] font-bold text-slate-300 mb-1">総利用枠</div>
+                            <div class="text-sm font-black text-slate-200">2.0 TB</div>
+                        </div>
                     </div>
+                    
+                    <div class="w-full h-2 bg-slate-700 rounded-full overflow-hidden mb-3">
+                        <div class="h-full bg-blue-400 rounded-full" style="width: 75%;"></div>
+                    </div>
+                    <p class="text-[10px] font-bold text-slate-400">※アップロード・ダウンロードの合計データ量が転送料金としてカウントされます。</p>
                 </div>
 
-                <!-- Item 2: ダウンロード待ち -->
-                <div class="r-item" data-status="wait">
-                    <div class="r-top">
-                        <div class="badge badge-orange">ダウンロード待ち</div>
-                        <div class="r-meta" style="color:#FF3B30;">期限: 2026/03/22 23:59</div>
-                    </div>
-                    <div class="r-title">SummerFes_Backstage_A.zip</div>
-                    <div class="r-meta">受付: 2026/03/19 09:40 / サイズ: 12.8GB</div>
-                    <div class="r-desc">PC版 MYストレージ を起動すると受け取り可能です。</div>
-                    <div class="r-actions">
-                        <button class="btn btn-outline btn-sm" style="width:auto; border-radius:8px;">詳細</button>
-                        <button class="btn btn-primary btn-sm" style="width:auto; border-radius:8px;">PCで受け取る方法</button>
-                    </div>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-sm font-black text-slate-800">アップロード履歴</h3>
+                    <button class="text-xs font-bold text-blue-600 hover:text-blue-800">絞り込み</button>
                 </div>
 
-                <!-- Item 3: 完了 -->
-                <div class="r-item" data-status="done">
-                    <div class="r-top">
-                        <div class="badge badge-green">ダウンロード完了</div>
+                <!-- History List -->
+                <div class="space-y-3">
+                    
+                    <!-- Item 1 -->
+                    <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="font-black text-sm text-slate-800 truncate pr-2">TokyoLive_FullCam_01.mov</div>
+                            <div class="text-[10px] font-bold px-2 py-1 bg-blue-50 text-blue-600 rounded">公開中</div>
+                        </div>
+                        <div class="flex items-center text-xs font-bold text-slate-500 mb-3 space-x-3">
+                            <span>28.4 GB</span>
+                            <span>•</span>
+                            <span>2026/03/19 10:15</span>
+                            <span>•</span>
+                            <span class="flex items-center gap-1"><svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg> 12回</span>
+                        </div>
+                        <div class="flex gap-2 text-xs">
+                            <button class="flex-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 py-2 rounded-lg font-black transition-colors" onclick="copyToClipboard('https://mys.tokyo/d/tk39fA')">URLコピー</button>
+                            <button class="flex-1 bg-blue-50 border border-blue-100 hover:bg-blue-100 text-blue-600 py-2 rounded-lg font-black transition-colors" onclick="sendToMyEmail('TokyoLive_FullCam_01.mov')">自分へメール</button>
+                            <button class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 px-3 rounded-lg font-black transition-colors" onclick="alert('非公開にしてファイルを削除しますか？')">削除</button>
+                        </div>
                     </div>
-                    <div class="r-title">Aoi_Birthday_MC_4K.mov</div>
-                    <div class="r-meta">受付: 2026/03/18 22:10 / サイズ: 6.2GB</div>
-                    <div class="r-desc">PC版 MYストレージ で受け取り済みです。</div>
-                    <div class="r-actions">
-                        <button class="btn btn-outline btn-sm" style="width:auto; border-radius:8px;">詳細</button>
-                    </div>
-                </div>
 
-                <!-- Item 4: 期限切れ -->
-                <div class="r-item" data-status="other">
-                    <div class="r-top">
-                        <div class="badge badge-red">期限切れ</div>
+                    <!-- Item 2 -->
+                    <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="font-black text-sm text-slate-800 truncate pr-2">Aoi_Birthday_MC_4K.mov</div>
+                            <div class="text-[10px] font-bold px-2 py-1 bg-blue-50 text-blue-600 rounded">公開中</div>
+                        </div>
+                        <div class="flex items-center text-xs font-bold text-slate-500 mb-3 space-x-3">
+                            <span>6.2 GB</span>
+                            <span>•</span>
+                            <span>2026/03/18 22:10</span>
+                            <span>•</span>
+                            <span class="flex items-center gap-1"><svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg> 405回</span>
+                        </div>
+                        <div class="flex gap-2 text-xs">
+                            <button class="flex-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 py-2 rounded-lg font-black transition-colors" onclick="copyToClipboard('https://mys.tokyo/d/aoi84b')">URLコピー</button>
+                            <button class="flex-1 bg-blue-50 border border-blue-100 hover:bg-blue-100 text-blue-600 py-2 rounded-lg font-black transition-colors" onclick="sendToMyEmail('Aoi_Birthday_MC_4K.mov')">自分へメール</button>
+                            <button class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 px-3 rounded-lg font-black transition-colors" onclick="alert('非公開にしてファイルを削除しますか？')">削除</button>
+                        </div>
                     </div>
-                    <div class="r-title">Live_Archive_Part03.mov</div>
-                    <div class="r-meta">受付: 2026/03/16 18:05 / サイズ: 30.0GB</div>
-                    <div class="r-desc">期限を過ぎたため受け取りできません。必要なら再予約してください。</div>
-                    <div class="r-actions">
-                        <button class="btn btn-outline btn-sm" style="width:auto; border-radius:8px;">詳細</button>
-                        <button class="btn btn-primary btn-sm" style="width:auto; border-radius:8px;">再予約する</button>
-                    </div>
-                </div>
 
-                <!-- Item 5: キャンセル -->
-                <div class="r-item" data-status="other">
-                    <div class="r-top">
-                        <div class="badge badge-gray">キャンセル</div>
+                    <!-- Item 3 -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 opacity-75">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="font-black text-sm text-slate-500 truncate pr-2 line-through">Rehearsal_Cam_B.zip</div>
+                            <div class="text-[10px] font-bold px-2 py-1 bg-slate-200 text-slate-500 rounded">削除済</div>
+                        </div>
+                        <div class="flex items-center text-xs font-bold text-slate-400 mb-2 space-x-3">
+                            <span>4.6 GB</span>
+                            <span>•</span>
+                            <span>2026/03/16 11:32</span>
+                        </div>
+                        <p class="text-[10px] text-slate-400 font-bold">このファイルは非公開になりサーバーから削除されました。</p>
                     </div>
-                    <div class="r-title">Rehearsal_Cam_B.zip</div>
-                    <div class="r-meta">受付: 2026/03/16 11:32 / サイズ: 4.6GB</div>
-                    <div class="r-desc">この予約はキャンセルされています。</div>
-                    <div class="r-actions">
-                        <button class="btn btn-outline btn-sm" style="width:auto; border-radius:8px;">詳細</button>
-                        <button class="btn btn-primary btn-sm" style="width:auto; border-radius:8px;">再予約する</button>
-                    </div>
-                </div>
-            </div>
 
-            <div style="height: 32px;"></div>
-
-            <!-- 2. Contract Status Card (Card border removed) -->
-            <div style="margin-bottom: 24px; padding: 0 4px;">
-                <div class="sc-header">
-                    <div class="sc-title">MYストレージ契約状況</div>
-                    <div class="badge badge-active">契約中</div>
-                </div>
-                <div style="font-size: 13px; font-weight: 900; margin-bottom: 8px;">プラン: プレミアム</div>
-                <div style="font-size: 11px; color: var(--text-sub); font-weight: 600;">PC版 MYストレージ と連携して、高品質な大容量アーカイブをセキュアに受け取れます。</div>
-            </div>
-
-            <!-- 3. Usage Status Cards -->
-            <div class="s-card" style="background: #E8EFF2; border: none; padding: 24px;">
-                <div class="sc-title" style="margin-bottom: 16px; color: #515C61;">伝送量の利用状況</div>
-                
-                <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;">
-                    <span style="font-size:14px; font-weight:900; color:#515C61;">伝送合計</span>
-                    <span style="font-size:18px; font-weight:900; color:#515C61;">1 TB<span style="font-size:13px;"> /年間(12か月)</span></span>
-                </div>
-                <div style="width: 100%; height: 8px; background: #9EA8AD; border-radius: 4px; overflow: hidden; margin-bottom: 20px;">
-                    <div style="height: 100%; background: #616E73; border-radius: 4px; width: 49%;"></div>
-                </div>
-
-                <div style="display:flex; flex-direction:column; gap:10px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:14px; font-weight:900; color:#515C61;">残伝送量</span>
-                        <span style="font-size:18px; font-weight:900; color:#515C61;">510.52 GB</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:14px; font-weight:900; color:#515C61;">預け量</span>
-                        <span style="font-size:18px; font-weight:900; color:#515C61;">1.47 GB</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:14px; font-weight:900; color:#515C61;">終了日</span>
-                        <span style="font-size:18px; font-weight:900; color:#515C61;">2027/02/27</span>
-                    </div>
                 </div>
             </div>
 
-            <div style="height: 32px;"></div>
-
-            <!-- 4. PC Client App (Moved to Bottom) -->
-            <h2 style="font-size: 16px; font-weight: 900; margin-bottom: 8px;">PC版 MYストレージ をダウンロード</h2>
-            <p style="font-size: 11px; color: var(--text-sub); font-weight: 600; margin-bottom: 16px;">大容量ファイルの受け取りはPC版アプリから行います</p>
-
-            <div class="c-app-card">
-                <div class="c-app-icon">
-                    <svg viewBox="0 0 24 24"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.951-1.801"/></svg>
+            <!-- TAB 3: DOWNLOAD -->
+            <div id="tab-download" class="tab-content">
+                <div class="mb-4">
+                    <h2 class="text-lg font-black text-slate-800 mb-1">保存済み共有ファイル</h2>
+                    <p class="text-xs font-bold text-slate-500">共有URL経由で受信したファイルの一覧です。<br>ご契約中は、この一覧からいつでも再ダウンロードが可能です。</p>
                 </div>
-                <div class="c-app-info">
-                    <div style="font-size:14px; font-weight:900;">Windows版</div>
-                    <div style="font-size:11px; color:var(--text-sub); font-weight:600;">Windows 10 / 11 対応</div>
-                    <div class="c-app-actions">
-                        <button class="btn btn-primary btn-sm" style="flex:1; border-radius:8px;" onclick="showToast('※PCからアクセスしてダウンロードしてください');">ダウンロード</button>
-                        <button class="btn btn-outline btn-sm" style="flex:1; border-radius:8px;" onclick="shareApp('win');">共有 🔗</button>
+
+                <div class="space-y-3">
+                    <!-- Item 0 (From MY Album) -->
+                    <div class="bg-gradient-to-r from-orange-50 to-white border border-orange-200 text-left rounded-xl p-4 shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="font-black text-sm text-slate-800 truncate pr-2 flex items-center gap-2">
+                                <span>Aoi_Birthday_MC_4K.mov</span>
+                            </div>
+                            <div class="text-[10px] font-bold px-2 py-1 bg-orange-100 text-orange-600 rounded whitespace-nowrap">保存済</div>
+                        </div>
+                        <div class="flex items-center justify-between text-[11px] font-bold text-slate-500 mb-2">
+                            <div class="flex items-center space-x-2">
+                                <span>6.2 GB</span>
+                                <span>•</span>
+                                <span class="flex items-center gap-1 text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full border border-orange-100">
+                                    <span style="font-size: 10px;">👑</span>
+                                    MYアルバム アーカイブ
+                                </span>
+                            </div>
+                        </div>
+                        <div class="text-[10px] text-slate-400 font-bold mb-3 border-b border-orange-100 pb-2">受取日: たった今</div>
+                        <div class="flex gap-2 mt-2">
+                            <button class="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white py-3 rounded-lg text-xs font-black transition-colors flex justify-center items-center gap-2 shadow-sm shadow-orange-500/20" onclick="showToast('ダウンロードを開始しました')">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                ダウンロード
+                            </button>
+                            <button class="flex-1 bg-white border border-orange-200 hover:bg-orange-50 text-orange-700 py-3 rounded-lg text-xs font-black transition-colors" onclick="sendToMyEmail('Aoi_Birthday_MC_4K.mov')">
+                                自分へメール
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Item 1 -->
+                    <div class="bg-white border text-left border-slate-200 rounded-xl p-4 shadow-sm">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="font-black text-sm text-slate-800 truncate pr-2">2026_Live_Backstage.zip</div>
+                            <div class="text-[10px] font-bold px-2 py-1 bg-blue-50 text-blue-600 rounded whitespace-nowrap">保存済</div>
+                        </div>
+                        <div class="flex items-center justify-between text-[11px] font-bold text-slate-500 mb-2">
+                            <div class="flex items-center space-x-2">
+                                <span>3.2 GB</span>
+                                <span>•</span>
+                                <span class="flex items-center gap-1">共有元: 公式みどりちゃん応援隊</span>
+                            </div>
+                        </div>
+                        <div class="text-[10px] text-slate-400 font-bold mb-3 border-b border-slate-100 pb-2">受取日: 2026/03/24 15:30</div>
+                        <div class="flex gap-2 mt-2">
+                            <button class="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-600 py-3 rounded-lg text-xs font-black transition-colors flex justify-center items-center gap-2" onclick="showToast('ダウンロードを開始しました')">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                ダウンロード
+                            </button>
+                            <button class="flex-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 py-3 rounded-lg text-xs font-black transition-colors" onclick="sendToMyEmail('2026_Live_Backstage.zip')">
+                                自分へメール
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Item 2 -->
+                    <div class="bg-white border text-left border-slate-200 rounded-xl p-4 shadow-sm">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="font-black text-sm text-slate-800 truncate pr-2">Aoi_PhotoBook_Vol2.pdf</div>
+                            <div class="text-[10px] font-bold px-2 py-1 bg-blue-50 text-blue-600 rounded whitespace-nowrap">保存済</div>
+                        </div>
+                        <div class="flex items-center justify-between text-[11px] font-bold text-slate-500 mb-2">
+                            <div class="flex items-center space-x-2">
+                                <span>850 MB</span>
+                                <span>•</span>
+                                <span class="flex items-center gap-1">共有元: TaroCreative</span>
+                            </div>
+                        </div>
+                        <div class="text-[10px] text-slate-400 font-bold mb-3 border-b border-slate-100 pb-2">受取日: 2026/03/20 09:12</div>
+                        <div class="flex gap-2 mt-2">
+                            <button class="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-600 py-3 rounded-lg text-xs font-black transition-colors flex justify-center items-center gap-2" onclick="showToast('ダウンロードを開始しました')">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                ダウンロード
+                            </button>
+                            <button class="flex-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 py-3 rounded-lg text-xs font-black transition-colors" onclick="sendToMyEmail('Aoi_PhotoBook_Vol2.pdf')">
+                                自分へメール
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Item 3 -->
+                    <div class="bg-white border text-left border-slate-200 rounded-xl p-4 shadow-sm opacity-75">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="font-black text-sm text-slate-800 truncate pr-2">TokyoLive_FullCam_02.mov</div>
+                            <div class="text-[10px] font-bold px-2 py-1 bg-slate-100 text-slate-500 rounded whitespace-nowrap">期限切れ</div>
+                        </div>
+                        <div class="flex items-center justify-between text-[11px] font-bold text-slate-500 mb-2">
+                            <div class="flex items-center space-x-2">
+                                <span>15.8 GB</span>
+                                <span>•</span>
+                                <span class="flex items-center gap-1">共有元: aoiinochi</span>
+                            </div>
+                        </div>
+                        <div class="text-[10px] text-slate-400 font-bold mb-3 border-b border-slate-100 pb-2">受取日: 2026/02/10 20:00</div>
+                        <button class="w-full bg-slate-100 text-slate-400 py-3 rounded-lg text-xs font-black flex justify-center items-center gap-2 cursor-not-allowed" disabled>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                            共有元で削除されました
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <div class="c-app-card">
-                <div class="c-app-icon">
-                    <svg viewBox="0 0 24 24"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.04 2.26-.74 3.58-.8 1.58.05 2.8.76 3.56 1.95-3.14 1.87-2.65 6.06.49 7.37-.73 1.77-1.7 3.65-2.71 4.65zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.32 2.37-2.01 4.29-3.74 4.25z"/></svg>
-                </div>
-                <div class="c-app-info">
-                    <div style="font-size:14px; font-weight:900;">Mac版</div>
-                    <div style="font-size:11px; color:var(--text-sub); font-weight:600;">macOS 対応</div>
-                    <div class="c-app-actions">
-                        <button class="btn btn-primary btn-sm" style="flex:1; border-radius:8px;" onclick="showToast('※PCからアクセスしてダウンロードしてください');">ダウンロード</button>
-                        <button class="btn btn-outline btn-sm" style="flex:1; border-radius:8px;" onclick="shareApp('mac');">共有 🔗</button>
-                    </div>
-                </div>
-            </div>
-            
-            <div style="height: 60px;"></div>
         </div>
 
         <div id="toast" class="toast">URLをコピーしました</div>
 
-        
+        <!-- Bottom Nav injected by nav.js -->
+
     </div>
     
     <script>
-        // フィルタ機能
-        function filterList(status, btnElement) {
-            // タブのアクティブ状態を更新
-            document.querySelectorAll('.f-tab').forEach(b => b.classList.remove('active'));
-            btnElement.classList.add('active');
-            
-            // アイテムの表示非表示切り替え
-            const items = document.querySelectorAll('.r-item');
-            items.forEach(item => {
-                if (status === 'all' || item.getAttribute('data-status') === status) {
-                    item.style.display = 'block';
-                } else {
-                    item.style.display = 'none';
+        // Handle Hash Deep Links on Load
+        window.addEventListener('DOMContentLoaded', () => {
+            if(window.location.hash === '#download') {
+                const dlBtn = document.querySelector('[data-target="tab-download"]');
+                if(dlBtn) {
+                    // Slight delay to ensure UI has rendered and visually transitions
+                    setTimeout(() => dlBtn.click(), 50);
                 }
-            });
-        }
+            }
+        });
 
-        // 共有機能モック
-        function shareApp(platform) {
-            const url = platform === 'win' 
-                ? 'https://myalbum.example.com/download/mystorage_win.exe' 
-                : 'https://myalbum.example.com/download/mystorage_mac.dmg';
-            
-            if (navigator.share) {
-                navigator.share({
-                    title: `MYストレージ (${platform.toUpperCase()}版)`,
-                    text: '大容量ファイル保存用PCクライアント',
-                    url: url
-                }).catch(err => {
-                    copyToClipboard(url);
+        // Tab Navigation
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => {
+                    b.classList.remove('bg-white', 'text-blue-600', 'shadow-sm');
+                    b.classList.add('text-slate-500');
                 });
-            } else {
-                copyToClipboard(url);
+                btn.classList.add('bg-white', 'text-blue-600', 'shadow-sm');
+                btn.classList.remove('text-slate-500');
+
+                tabContents.forEach(c => c.classList.remove('active'));
+                const targetId = btn.getAttribute('data-target');
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
+
+        // File Selection Mock
+        let isUploading = false;
+        function handleFileSelect(event) {
+            if(event.target.files.length > 0) {
+                const dropArea = document.getElementById('drop-area');
+                
+                dropArea.classList.remove('pulse-border');
+                dropArea.innerHTML = `
+                    <svg class="w-12 h-12 text-blue-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <div class="text-sm font-black text-blue-800 mb-1">${event.target.files.length} 個のファイルを選択済</div>
+                    <div class="text-[10px] font-bold text-blue-500 cursor-pointer hover:underline" onclick="event.stopPropagation(); document.getElementById('file-input').click()">別のファイルを選択する</div>
+                    <input type="file" id="file-input" class="hidden" multiple onchange="handleFileSelect(event)">
+                `;
             }
         }
 
-        // クリップボードコピー
+        // Upload Simulation (Single)
+        function simulateUpload() {
+            if(isUploading) return;
+            isUploading = true;
+
+            const dropArea = document.getElementById('drop-area');
+            const statusArea = document.getElementById('upload-status-area');
+            const bulkArea = document.getElementById('bulk-upload-area');
+            const resultArea = document.getElementById('upload-result-area');
+            const btnDoUpload = document.getElementById('btn-do-upload');
+            const fill = document.getElementById('upload-progress-fill');
+            const percentDiv = document.getElementById('upload-percent');
+
+            fill.style.width = '0%';
+            percentDiv.innerText = '0%';
+            resultArea.classList.add('hidden');
+            if(bulkArea) bulkArea.classList.add('hidden');
+
+            dropArea.style.display = 'none';
+            statusArea.classList.remove('hidden');
+            btnDoUpload.innerText = 'アップロード中...';
+            btnDoUpload.classList.add('opacity-50', 'pointer-events-none');
+
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if(progress > 100) progress = 100;
+                
+                fill.style.width = `${progress}%`;
+                percentDiv.innerText = `${Math.floor(progress)}%`;
+
+                if(progress === 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        statusArea.classList.add('hidden');
+                        resultArea.classList.remove('hidden');
+                        btnDoUpload.innerText = '別のファイルをアップロードする';
+                        btnDoUpload.classList.remove('opacity-50', 'pointer-events-none');
+                        
+                        btnDoUpload.onclick = resetUploadFlow;
+                        isUploading = false;
+                    }, 500);
+                }
+            }, 300);
+        }
+
+        // Bulk Upload Simulation (Demo)
+        function simulateUploadBulk() {
+            if(isUploading) return;
+            isUploading = true;
+
+            const dropArea = document.getElementById('drop-area');
+            const singleStatus = document.getElementById('upload-status-area');
+            const bulkStatus = document.getElementById('bulk-upload-area');
+            const resultArea = document.getElementById('upload-result-area');
+            const btnDoUpload = document.getElementById('btn-do-upload');
+
+            singleStatus.classList.add('hidden');
+            resultArea.classList.add('hidden');
+            dropArea.style.display = 'none';
+            bulkStatus.classList.remove('hidden');
+
+            const fileList = document.getElementById('bulk-file-list');
+            const overallPercent = document.getElementById('bulk-overall-percent');
+            const overallFill = document.getElementById('bulk-overall-fill');
+            
+            // mock files
+            const files = [
+                { name: 'TokyoLive_Cam1.mov', size: '12.4 GB', success: true },
+                { name: 'TokyoLive_Cam2.mov', size: '15.1 GB', success: true },
+                { name: 'Backstage_Photo.zip', size: '2.5 GB', success: true },
+                { name: 'Audio_Mix.wav', size: '8.4 GB', success: true },
+                { name: 'Corrupted_File.mp4', size: '4.1 GB', success: false }
+            ];
+
+            let html = '';
+            files.forEach((f, i) => {
+                html += `
+                <div class="flex items-center justify-between p-2 pb-1 border-b border-slate-100 last:border-0" id="file-item-${i}">
+                    <div class="flex flex-col flex-1 truncate pr-2">
+                        <span class="text-xs font-black text-slate-700 truncate">${f.name}</span>
+                        <span class="text-[9px] text-slate-400 font-bold">${f.size}</span>
+                    </div>
+                    <div class="text-[10px] font-bold text-slate-400 whitespace-nowrap" id="file-status-${i}">待機中...</div>
+                </div>`;
+            });
+            fileList.innerHTML = html;
+
+            btnDoUpload.innerText = '一括アップロード中...';
+            btnDoUpload.classList.add('opacity-50', 'pointer-events-none');
+
+            let currentFile = 0;
+            let progress = 0;
+            overallFill.style.width = '0%';
+            overallPercent.innerText = '0%';
+
+            const processNext = () => {
+                if(currentFile >= files.length) {
+                    // All finished
+                    setTimeout(() => {
+                        bulkStatus.classList.add('hidden');
+                        resultArea.classList.remove('hidden');
+                        btnDoUpload.innerText = '別のファイルをアップロードする';
+                        btnDoUpload.classList.remove('opacity-50', 'pointer-events-none');
+                        btnDoUpload.onclick = resetUploadFlow;
+                        isUploading = false;
+                    }, 1000);
+                    return;
+                }
+
+                const file = files[currentFile];
+                const statusEl = document.getElementById(`file-status-${currentFile}`);
+                statusEl.innerText = 'アップロード中...';
+                statusEl.className = 'text-[10px] font-bold text-blue-500 whitespace-nowrap';
+
+                let fileSim = 0;
+                const interval = setInterval(() => {
+                    fileSim += 25;
+                    let localProgress = progress + (5 * (fileSim / 100));
+                    if(localProgress > Math.min((currentFile + 1) * 20, 100)) localProgress = Math.min((currentFile + 1) * 20, 100);
+                    
+                    overallFill.style.width = `${localProgress}%`;
+                    overallPercent.innerText = `${Math.floor(localProgress)}%`;
+
+                    if(fileSim >= 100) {
+                        clearInterval(interval);
+                        progress = (currentFile + 1) * 20;
+                        if(file.success) {
+                            statusEl.innerText = '完了 ✅';
+                            statusEl.className = 'text-[10px] font-bold text-green-500 whitespace-nowrap';
+                        } else {
+                            statusEl.innerText = 'エラー ❌';
+                            statusEl.className = 'text-[10px] font-bold text-red-500 whitespace-nowrap';
+                        }
+                        currentFile++;
+                        processNext();
+                    }
+                }, 150);
+            };
+
+            processNext();
+        }
+
+        function resetUploadFlow() {
+            const dropArea = document.getElementById('drop-area');
+            const resultArea = document.getElementById('upload-result-area');
+            const btnDoUpload = document.getElementById('btn-do-upload');
+            const fileInput = document.getElementById('file-input');
+            const passInput = document.getElementById('upload-password');
+
+            dropArea.style.display = 'flex';
+            dropArea.classList.add('pulse-border');
+            resultArea.classList.add('hidden');
+            if(fileInput) fileInput.value = '';
+            if(passInput) passInput.value = '';
+            
+            dropArea.innerHTML = `
+                <svg class="w-12 h-12 text-blue-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                <div class="text-sm font-black text-blue-700 mb-1">タップしてファイルを選択</div>
+                <div class="text-xs font-bold text-blue-500/80 mb-1">またはここにドラッグ＆ドロップ</div>
+                <div class="text-[10px] font-bold text-blue-400">※複数ファイルの一括アップロードも可能です</div>
+                <input type="file" id="file-input" class="hidden" multiple onchange="handleFileSelect(event)">
+            `;
+
+            btnDoUpload.innerText = 'アップロード開始';
+            btnDoUpload.onclick = simulateUpload;
+        }
+
         function copyToClipboard(text) {
             if(navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(text).then(() => {
@@ -319,19 +574,36 @@
                     showToast('コピーに失敗しました');
                 });
             } else {
-                // fall back logic or just show toast for prototype
-                showToast('URLをコピーしました (Mock)');
+                showToast('URLをコピーしました');
             }
         }
 
-        // トースト通知
         function showToast(msg) {
             const toast = document.getElementById('toast');
             toast.innerText = msg;
             toast.classList.add('show');
             setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
+
+        // One-click Send to My Email Logic
+        function sendToMyEmail(filename) {
+            // Mock: send to user's registered email
+            showToast(`登録メールアドレスへダウンロードURLを送信しました`);
+        }
+
+        // Direct Email Sending from Upload Result
+        function sendDirectEmailFromUpload() {
+            const emailInput = document.getElementById('direct-share-email');
+            const email = emailInput.value;
+            if(!email || !email.includes('@')) {
+                alert("有効なメールアドレスを入力してください");
+                return;
+            }
+            showToast(`${email} 宛にダウンロードURLを送信しました！`);
+            emailInput.value = "";
+        }
     </script>
-<script src="nav.js"></script>
+
+    <script src="nav.js"></script>
 </body>
 </html>

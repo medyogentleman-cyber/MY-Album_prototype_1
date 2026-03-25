@@ -71,6 +71,9 @@
         .more-btn:active { background: #F0F2F5; }
         .more-btn.disabled { color: #A0A0A0; pointer-events: none; }
 
+        .filter-btn { padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 800; border: 1px solid var(--border-color); background: #FFF; color: var(--text-sub); cursor: pointer; white-space: nowrap; transition: 0.2s; }
+        .filter-btn.active { background: var(--primary-color); color: #FFF; border-color: var(--primary-color); }
+
         /* Bottom Nav */
         .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background-color: rgba(255,255,255,0.95); backdrop-filter: blur(10px); height: var(--nav-height); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid var(--border-color); z-index: 100; padding-bottom: env(safe-area-inset-bottom, 0px); }
         .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-sub); text-decoration: none; font-size: 10px; font-weight: 700; gap: 4px; }
@@ -111,14 +114,19 @@
                 </div>
             </header>
 
-            <div class="toast" id="archiveToast">📥 アーカイブしました</div>
-
             <div class="search-row" style="padding-top: 12px; padding-bottom: 0;">
                 <div class="search-box" style="background: #EAE8F2;">
                     <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
                     <input type="text" id="searchInput" class="search-input" placeholder="推し名、配信日、神シーン等で検索">
                     <div class="clear-btn" id="clearBtn" onclick="document.getElementById('searchInput').value=''">✕</div>
                 </div>
+            </div>
+            
+            <div style="padding: 12px 16px; display: flex; gap: 8px; overflow-x: auto; background: rgba(255,255,255,0.95); -webkit-overflow-scrolling: touch;">
+                <button class="filter-btn active" onclick="filterByDate('all', this)">すべて</button>
+                <button class="filter-btn" onclick="filterByDate('today', this)">本日</button>
+                <button class="filter-btn" onclick="filterByDate('yesterday', this)">昨日</button>
+                <button class="filter-btn" onclick="filterByDate('dayBefore', this)">一昨日</button>
             </div>
         </div>
 
@@ -240,18 +248,41 @@
         }
     }
 
-    // Initially randomize some archive buttons
+    function filterByDate(filterType, btn) {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const now = new Date();
+        const formatDate = (d) => `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
+        let targetDate = '';
+        if (filterType === 'today') targetDate = formatDate(now);
+        else if (filterType === 'yesterday') targetDate = formatDate(new Date(now.getTime() - 86400000));
+        else if (filterType === 'dayBefore') targetDate = formatDate(new Date(now.getTime() - 86400000 * 2));
+
+        document.querySelectorAll('.feed-sec').forEach(sec => {
+            let hasVisible = false;
+            const items = sec.querySelectorAll('.feed-item');
+            items.forEach(item => {
+                if (filterType === 'all') {
+                    item.style.display = 'flex';
+                    hasVisible = true;
+                } else {
+                    const dateEl = item.querySelector('.fi-date');
+                    if (dateEl && dateEl.innerText.startsWith(targetDate)) {
+                        item.style.display = 'flex';
+                        hasVisible = true;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                }
+            });
+            sec.style.display = hasVisible ? 'block' : 'none';
+        });
+    }
+
+    // Initially randomize some archive buttons and setup dummy dates precisely for filter test
     document.addEventListener('DOMContentLoaded', () => {
         const archiveBtns = document.querySelectorAll('.btn-archive');
-        function doArchive(btn) {
-            btn.innerHTML = "✓ アーカイブ済み";
-            btn.classList.add("archived");
-            btn.disabled = true;
-            const toast = document.getElementById("archiveToast");
-            toast.classList.add("show");
-            setTimeout(() => { toast.classList.remove("show"); }, 2000);
-        }
-
         archiveBtns.forEach(btn => {
             if(Math.random() > 0.6) {
                 btn.classList.add('archived');
@@ -259,18 +290,33 @@
             }
         });
 
+        const now = new Date();
+        const formatDate = (d) => `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
+        const todayStr = formatDate(now);
+        const yesterdayStr = formatDate(new Date(now.getTime() - 86400000));
+        const dayBeforeStr = formatDate(new Date(now.getTime() - 86400000 * 2));
+
+        document.querySelectorAll('.feed-sec').forEach(sec => {
+            const items = sec.querySelectorAll('.fi-date');
+            if(items[0]) { items[0].innerHTML = `${todayStr} 12:00 <span class="new-tag">NEW</span>`; }
+            if(items[1]) { items[1].innerHTML = `${yesterdayStr} 15:30`; }
+            if(items[2]) { items[2].innerHTML = `${dayBeforeStr} 09:15`; }
+        });
+
         // Load albums into header select
         const select = document.getElementById('headerAlbumSelect');
-        const custom = JSON.parse(localStorage.getItem('myCustomAlbums') || '[]');
-        custom.forEach(al => {
-            if (al.name === 'テストアルバム') return; // Skip test placeholder
-            const opt = document.createElement('option');
-            opt.value = al.name;
-            opt.innerText = al.name;
-            select.appendChild(opt);
-        });
-        const current = localStorage.getItem('selectedCurrentAlbum');
-        if(current && select) select.value = current;
+        if(select) {
+            const custom = JSON.parse(localStorage.getItem('myCustomAlbums') || '[]');
+            custom.forEach(al => {
+                if (al.name === 'テストアルバム') return; // Skip test placeholder
+                const opt = document.createElement('option');
+                opt.value = al.name;
+                opt.innerText = al.name;
+                select.appendChild(opt);
+            });
+            const current = localStorage.getItem('selectedCurrentAlbum');
+            if(current) select.value = current;
+        }
     });
 </script>
 <script src="nav.js"></script>

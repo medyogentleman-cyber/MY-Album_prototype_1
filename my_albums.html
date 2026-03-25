@@ -106,10 +106,6 @@
         <header class="dash-header">
             <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap;">
                 <img src="images/Myalbumlogo.png" alt="MYアルバム" style="height: 36px; width: auto; object-fit: contain;">
-                <div style="display: flex; gap: 12px; align-items: center;">
-                    <div id="allSelectBtn" class="all-select-btn" onclick="selectAll()">すべて選択</div>
-                    <button class="select-toggle" id="selectToggle" onclick="toggleSelectionMode()">選択</button>
-                </div>
             </div>
             <div style="width: 100%; position: relative; display: flex; align-items: center; background: rgba(0,0,0,0.03); border-radius: 12px; padding: 4px 12px;">
                 <select class="album-select" style="width: 100%; appearance: none; background: transparent; border: none; font-size: 13px; font-weight: 900; padding: 8px 0; outline: none; color: var(--text-main);">
@@ -122,9 +118,15 @@
         </header>
 
         <div class="content-area" style="padding: 16px;">
-            <h2 style="font-size: 16px; font-weight: 900; margin-bottom: 20px; display:flex; align-items:center; gap:8px;">
-                <span style="width:4px; height:16px; background:var(--primary-color); border-radius:2px;"></span> MYアルバム アーカイブ一覧
-            </h2>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                <h2 style="font-size: 16px; font-weight: 900; display:flex; align-items:center; gap:8px; margin: 0;">
+                    <span style="width:4px; height:16px; background:var(--primary-color); border-radius:2px;"></span> MYアルバム アーカイブ一覧
+                </h2>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button class="all-select-btn" id="allSelectBtn" onclick="selectAll()" style="margin: 0; padding: 6px 12px; background: transparent; border: none;">すべて選択</button>
+                    <button class="select-toggle" id="selectToggle" onclick="toggleSelectionMode()" style="padding: 6px 14px; font-size: 11px;">ダウンロード・保存</button>
+                </div>
+            </div>
 
             <!-- Card 1 (Video) -->
             <div class="archive-card">
@@ -271,10 +273,19 @@
         </div>
 
         <div class="bulk-bar" id="bulkBar">
-            <div class="bulk-count"><span id="selectedCount">0</span> 件選択中</div>
-            <div class="bulk-btn-row">
-                <button class="bulk-btn btn-zip" onclick="doBulkAction('ZIP')">ZIPダウンロード</button>
-                <button class="bulk-btn btn-storage" onclick="doBulkAction('STORAGE')">MYストレージ保存</button>
+            <!-- Normal Actions -->
+            <div id="bulk-actions" style="display: flex; width: 100%; justify-content: space-between; align-items: center;">
+                <div class="bulk-count"><span id="selectedCount">0</span> 件選択中</div>
+                <div class="bulk-btn-row">
+                    <button class="bulk-btn btn-zip" onclick="doBulkAction('ZIP')">ZIPダウンロード</button>
+                    <button class="bulk-btn btn-storage" onclick="doBulkAction('STORAGE')">MYストレージ保存</button>
+                </div>
+            </div>
+            
+            <!-- Success State for MY Storage -->
+            <div id="bulk-success" style="display: none; width: 100%; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+                <span style="color: #FFF; font-size:13px; font-weight: 900; line-height: 1.4; text-align: center;">☁️ MYストレージの<br>ダウンロードに保存しました</span>
+                <a href="storage.html#download" style="font-size:11px; color: #FFF; background: var(--primary-color); border: 1px solid rgba(255,255,255,0.3); padding: 5px 16px; border-radius: 20px; text-decoration: none; font-weight: 900; box-shadow: 0 4px 10px rgba(255,107,0,0.3);">👉 ここをクリックして確認</a>
             </div>
         </div>
 
@@ -325,7 +336,7 @@
                 allBtn.classList.add('show');
                 checks.forEach(c => c.classList.add('active'));
             } else {
-                toggleBtn.innerText = '選択';
+                toggleBtn.innerText = 'ダウンロード・保存';
                 toggleBtn.classList.remove('active');
                 allBtn.classList.remove('show');
                 checks.forEach(c => c.classList.remove('active'));
@@ -353,30 +364,33 @@
         function doBulkAction(type) {
             const count = document.querySelectorAll('.custom-check:checked').length;
             const toast = document.getElementById('bulkToast');
+            const actionsArea = document.getElementById('bulk-actions');
+            const successArea = document.getElementById('bulk-success');
             
             if(type === 'ZIP') {
                 toast.innerHTML = `<div style="display:flex; align-items:center; gap:10px;">
                     <div class="spin" style="width:16px; height:16px; border:2px solid #FFF; border-top-color:transparent; border-radius:50%;"></div>
                     <span>${count}件をZIPにまとめています...</span>
                 </div>`;
+                toast.classList.add('show');
+                
+                setTimeout(() => { 
+                    toast.classList.remove('show'); 
+                    toggleSelectionMode(); 
+                }, 3500);
             } else {
-                toast.innerHTML = `<div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
-                    <span style="font-size:14px;">☁️ MYストレージへ保存完了</span>
-                    <span style="font-size:10px; opacity:0.8;">${count}個のファイルを個別に保存しました</span>
-                </div>`;
-            }
-
-            toast.classList.add('show');
-            
-            // Animation for individual saving feel
-            if(type === 'STORAGE') {
+                // MY Storage save action - Swap bulk bar content
+                actionsArea.style.display = 'none';
+                successArea.style.display = 'flex';
+                
                 console.log("Saving each item to MY Storage...");
-            }
 
-            setTimeout(() => { 
-                toast.classList.remove('show'); 
-                toggleSelectionMode(); 
-            }, 3500);
+                setTimeout(() => { 
+                    actionsArea.style.display = 'flex';
+                    successArea.style.display = 'none';
+                    toggleSelectionMode(); 
+                }, 4000);
+            }
         }
     </script>
     <script src="nav.js"></script>
