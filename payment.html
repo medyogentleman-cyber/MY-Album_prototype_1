@@ -6,6 +6,7 @@
     <title>DMC PAY取引情報 - MYアルバム</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
             --nav-height: 80px;
@@ -189,76 +190,35 @@
 
             <div style="height: 16px;"></div>
 
-            <!-- MY Storage Block (Borderless) -->
-            <div style="margin-bottom: 24px; padding: 0 4px;">
-                <div class="sc-header">
-                    <div class="sc-title">MYストレージ契約状況</div>
-                    <div class="badge badge-active">契約中</div>
-                </div>
-                <div style="font-size: 13px; font-weight: 900; margin-bottom: 8px;">プラン: プレミアム</div>
-                <div style="font-size: 11px; color: var(--text-sub); font-weight: 600;">PC版 MYストレージ と連携して、高品質な大容量アーカイブをセキュアに受け取れます。</div>
+            <!-- Quota Meter (Imported from storage.html) -->
+            <div class="mb-2 mt-8">
+                <h3 class="text-sm font-black text-slate-800 mb-2 text-center" style="font-size:18px;">利用中のプラン</h3>
             </div>
-
-            <!-- Usage Status Cards -->
-            <div class="s-card" style="background: #E8EFF2; border: none; padding: 24px;">
-                <div class="sc-title" style="margin-bottom: 16px; color: #515C61;">伝送量の利用状況</div>
-                
-                <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;">
-                    <span style="font-size:14px; font-weight:900; color:#515C61;">伝送合計</span>
-                    <span style="font-size:18px; font-weight:900; color:#515C61;">1 TB<span style="font-size:13px;"> /年間(12か月)</span></span>
-                </div>
-                <div style="width: 100%; height: 8px; background: #9EA8AD; border-radius: 4px; overflow: hidden; margin-bottom: 20px;">
-                    <div style="height: 100%; background: #616E73; border-radius: 4px; width: 49%;"></div>
-                </div>
-
-                <div style="display:flex; flex-direction:column; gap:10px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:14px; font-weight:900; color:#515C61;">残伝送量</span>
-                        <span style="font-size:18px; font-weight:900; color:#515C61;">510.52 GB</span>
+            <div class="bg-white border-2 border-slate-200 rounded-2xl p-5 mb-10 shadow-sm text-left">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="text-xs font-black text-slate-700 flex items-center gap-1">
+                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        伝送量・利用状況
                     </div>
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:14px; font-weight:900; color:#515C61;">預け量</span>
-                        <span style="font-size:18px; font-weight:900; color:#515C61;">1.47 GB</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:14px; font-weight:900; color:#515C61;">終了日</span>
-                        <span style="font-size:18px; font-weight:900; color:#515C61;">2027/02/27</span>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2 py-1 bg-slate-100 text-slate-600 rounded-md text-[10px] font-black border border-slate-200">スタンダードプラン</span>
+                        <button class="px-2 py-1 bg-orange-100 text-orange-600 hover:bg-orange-200 rounded-md text-[10px] font-black border border-orange-200 transition-colors" onclick="location.href='storage.html'">アップグレード</button>
                     </div>
                 </div>
-            </div>
-
-            <div style="height: 32px;"></div>
-
-            <!-- PC Client App Download -->
-            <h2 style="font-size: 16px; font-weight: 900; margin-bottom: 8px;">PC版 MYストレージ をダウンロード</h2>
-            <p style="font-size: 11px; color: var(--text-sub); font-weight: 600; margin-bottom: 16px;">大容量ファイルの受け取りはPC版アプリから行います</p>
-
-            <div class="c-app-card">
-                <div class="c-app-icon">
-                    <svg viewBox="0 0 24 24"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.951-1.801"/></svg>
-                </div>
-                <div class="c-app-info">
-                    <div style="font-size:14px; font-weight:900;">Windows版</div>
-                    <div style="font-size:11px; color:var(--text-sub); font-weight:600;">Windows 10 / 11 対応</div>
-                    <div class="c-app-actions">
-                        <button class="btn btn-primary btn-sm" style="flex:1; border-radius:8px;" onclick="showToast('※PCからアクセスしてダウンロードしてください');">ダウンロード</button>
-                        <button class="btn btn-outline btn-sm" style="flex:1; border-radius:8px;" onclick="shareApp('win');">共有 🔗</button>
+                <div class="flex justify-between items-end mb-2">
+                    <div>
+                        <div class="text-[10px] font-bold text-slate-500 mb-1">残りの伝送量 (年間)</div>
+                        <div class="text-2xl font-black text-slate-800">510.5<span class="text-sm font-bold text-slate-500 ml-1">GB</span></div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-[10px] font-bold text-slate-500 mb-1">総利用枠</div>
+                        <div class="text-sm font-black text-slate-600">1.0 TB</div>
                     </div>
                 </div>
-            </div>
-
-            <div class="c-app-card">
-                <div class="c-app-icon">
-                    <svg viewBox="0 0 24 24"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.04 2.26-.74 3.58-.8 1.58.05 2.8.76 3.56 1.95-3.14 1.87-2.65 6.06.49 7.37-.73 1.77-1.7 3.65-2.71 4.65zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.32 2.37-2.01 4.29-3.74 4.25z"/></svg>
+                <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden mb-3">
+                    <div class="h-full bg-blue-500 rounded-full" style="width: 51%;"></div>
                 </div>
-                <div class="c-app-info">
-                    <div style="font-size:14px; font-weight:900;">Mac版</div>
-                    <div style="font-size:11px; color:var(--text-sub); font-weight:600;">macOS 対応</div>
-                    <div class="c-app-actions">
-                        <button class="btn btn-primary btn-sm" style="flex:1; border-radius:8px;" onclick="showToast('※PCからアクセスしてダウンロードしてください');">ダウンロード</button>
-                        <button class="btn btn-outline btn-sm" style="flex:1; border-radius:8px;" onclick="shareApp('mac');">共有 🔗</button>
-                    </div>
-                </div>
+                <p class="text-[10px] font-bold text-slate-400">※アップロード・ダウンロードの合計データ量が転送料金としてカウントされます。</p>
             </div>
             
             <div style="height: 60px;"></div>

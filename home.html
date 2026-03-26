@@ -183,6 +183,26 @@
         @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
         .overlay-tipping { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 150; display: none; opacity: 0; transition: 0.3s; backdrop-filter: blur(2px); }
         .overlay-tipping.show { display: block; opacity: 1; }
+
+        /* Payment Method Routing additions */
+        .pay-method-screen { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%); width: 100%; max-width: 430px; background: #FFF; border-radius: 24px 24px 0 0; padding: 24px 20px calc(var(--nav-height, 80px) + 20px); z-index: 250; transition: 0.3s cubic-bezier(0.1, 0.8, 0.2, 1); box-shadow: 0 -10px 40px rgba(0,0,0,0.1); }
+        .pay-method-screen.show { transform: translateX(-50%) translateY(0); }
+        .pm-btn { display: flex; align-items: center; justify-content: space-between; padding: 16px; border: 2px solid var(--border-color); border-radius: 16px; margin-bottom: 12px; cursor: pointer; transition: 0.2s; background: white; width: 100%; text-align: left; -webkit-tap-highlight-color: transparent;}
+        .pm-btn:active { transform: scale(0.98); background: #F8F9FB; border-color: #E2E8F0; }
+        .pm-btn .pm-icon { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 900; color: var(--text-main); }
+        
+        /* Stripe Mock Screen */
+        .stripe-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #F6F9FC; z-index: 300; display: none; flex-direction: column; opacity: 0; transition: 0.3s; color: #32325D; }
+        .stripe-screen.show { display: flex; opacity: 1; }
+        .stripe-header { padding: 16px 20px; font-size: 16px; font-weight: 900; text-align: center; border-bottom: 1px solid #E6EBF1; background: #FFF; display:flex; justify-content:space-between; align-items:center; box-shadow: 0 1px 2px rgba(0,0,0,0.05);}
+        .stripe-body { flex: 1; padding: 24px 20px; display: flex; flex-direction: column;}
+        .stripe-amount-box { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 6px rgba(50,50,93,0.05), 0 1px 3px rgba(0,0,0,0.03); text-align: center; margin-bottom: 24px; border: 1px solid #F6F9FC;}
+        .stripe-amount-val { font-size: 36px; font-weight: 900; margin-top: 8px;}
+        .stripe-pay-btn { background: #635BFF; color: #FFF; font-size: 16px; font-weight: 900; padding: 18px; border-radius: 12px; border: none; cursor: pointer; width: 100%; box-shadow: 0 4px 6px rgba(50,50,93,0.11), 0 1px 3px rgba(0,0,0,0.08); transition: 0.2s; margin-top: auto; margin-bottom: 40px;}
+        .stripe-pay-btn:active { transform: translateY(2px); box-shadow: 0 2px 4px rgba(50,50,93,0.11); }
+        .stripe-input-mock { background: white; border: 1px solid #E6EBF1; border-radius: 8px; padding: 14px; margin-bottom: 16px; color: #32325D; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(50,50,93,0.02); font-size: 14px;}
+        .stripe-label { font-size: 13px; font-weight: 800; color: #525F7F; margin-bottom: 8px; display: block; }
+
     </style>
 </head>
 <body>
@@ -192,17 +212,23 @@
         <header class="dash-header">
             <!-- Top Row: Logo, User Info, Bell -->
             <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                <img src="images/Myalbumlogo.png" alt="MYアルバム" style="height: 48px; width: auto; object-fit: contain; flex-shrink: 0;">
+                <img src="images/Myalbumlogo.png" alt="MYアルバム" style="height: 30px; width: auto; object-fit: contain; flex-shrink: 0;">
                 
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <!-- User Badge -->
-                    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px; background: transparent; padding: 0;">
-                        <span style="font-size: 10px; font-weight: 900; color: #FFF; background: var(--primary-color); padding: 2px 6px; border-radius: 12px; line-height: 1; box-shadow: 0 2px 4px rgba(255,107,0,0.2);">Lv.5</span>
-                        <span style="font-size: 12px; font-weight: 900; color: var(--text-main); line-height: 1.1;">TaroCreativeさん</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <!-- Combined Profile & Plan Chip (Redesigned UI/UX) -->
+                    <div style="display: flex; align-items: center; background: #FFF; border-radius: 30px; padding: 4px; padding-right: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #EAE8F2; gap: 8px; cursor: pointer; transition: 0.2s; -webkit-tap-highlight-color: transparent;" onclick="alert('プロフィール詳細またはアップグレード画面へ遷移します')" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                        <div style="width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, #FFD700, #FF8C00); color: #FFF; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; box-shadow: 0 2px 6px rgba(255,140,0,0.3);">💎</div>
+                        <div style="display: flex; flex-direction: column; justify-content: center;">
+                            <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 3px;">
+                                <span style="font-size: 11px; font-weight: 900; color: var(--text-main); line-height: 1; white-space: nowrap;">TaroCreative</span>
+                                <span style="font-size: 8px; font-weight: 900; color: #FFF; background: var(--primary-color); padding: 2px 4px; border-radius: 6px; line-height: 1;">Lv.5</span>
+                            </div>
+                            <span style="font-size: 10px; font-weight: 800; color: #D2691E; line-height: 1; white-space: nowrap;">プレミアム会員</span>
+                        </div>
                     </div>
                     
                     <!-- Notification Bell -->
-                    <div style="position:relative; width: 38px; height: 38px; background: #FFF; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); cursor: pointer;" onclick="document.getElementById('notif-pop').classList.toggle('active')">
+                    <div style="position:relative; width: 38px; height: 38px; min-width: 38px; flex-shrink: 0; background: #FFF; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); cursor: pointer; border: 1px solid #EAE8F2; transition: 0.2s;" onclick="document.getElementById('notif-pop').classList.toggle('active')" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                         <span style="font-size: 20px;">🔔</span>
                         <div style="position:absolute; top: -2px; right: -2px; width:12px; height:12px; background:var(--accent-pink); border-radius:50%; border:2px solid white;"></div>
                         
@@ -662,14 +688,67 @@
             <button class="amount-btn" onclick="selectAmount(100)">100円</button>
             <button class="amount-btn" onclick="selectAmount(300)">300円</button>
             <button class="amount-btn" onclick="selectAmount(500)">500円</button>
-            <button class="amount-btn" onclick="selectAmount(1000)">1000円</button>
-            <button class="amount-btn" onclick="selectAmount(5000)">5000円</button>
-            <button class="amount-btn" onclick="selectAmount(10000)">10000円</button>
+            <button class="amount-btn" onclick="selectAmount(1000)">1,000円</button>
+            <button class="amount-btn" onclick="selectAmount(5000)">5,000円</button>
+            <button class="amount-btn" onclick="selectAmount(10000)">10,000円</button>
         </div>
         <div class="free-amount-wrap">
             <input type="number" id="freeAmount" placeholder="自由入力" class="free-amount-input">
             <span style="font-size: 14px; font-weight: 800; color:#333;">円</span>
             <button class="submit-free" onclick="submitFreeAmount()">決定</button>
+        </div>
+    </div>
+
+    <!-- Payment Method Screen -->
+    <div class="pay-method-screen" id="payMethodScreen">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <div style="font-size: 16px; font-weight: 900; color: var(--text-main);">お支払い方法を選択</div>
+            <div style="color: var(--text-sub); font-size: 13px; cursor: pointer; font-weight:800; padding:4px;" onclick="closePayMethod()">キャンセル</div>
+        </div>
+        
+        <!-- Stripe Option -->
+        <button class="pm-btn" onclick="startStripePay()">
+            <div class="pm-icon"><span style="font-size: 24px;">💳</span> クレジットカード (Stripe)</div>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="#CBD5E1"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </button>
+        
+        <!-- DMC PAY Option -->
+        <button class="pm-btn" onclick="showDmcPay()">
+            <div class="pm-icon"><span style="font-size: 24px;">💰</span> DMC PAY 残高から支払う</div>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="#CBD5E1"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </button>
+    </div>
+
+    <!-- Stripe Mock Screen -->
+    <div class="stripe-screen" id="stripeScreen">
+        <div class="stripe-header">
+            <div style="cursor:pointer; color:#635BFF; font-size:14px;" onclick="closeStripe()">キャンセル</div>
+            <div>Stripe Checkout</div>
+            <div style="width: 50px;"></div>
+        </div>
+        <div class="stripe-body">
+            <span class="stripe-label" style="margin-bottom: 12px;">MYアルバム クリエイター応援</span>
+            <div class="stripe-amount-box">
+                <div style="font-size: 13px; font-weight: 800; color: #8898AA; margin-bottom: 4px;">お支払い合計</div>
+                <div class="stripe-amount-val" id="stripeAmountText">¥0</div>
+            </div>
+            
+            <span class="stripe-label">カード情報</span>
+            <div class="stripe-input-mock">
+                <span style="letter-spacing: 2px;">•••• •••• •••• 4242</span>
+                <span style="font-size: 20px; line-height: 1;">💳</span>
+            </div>
+            <div style="display:flex; gap:16px;">
+                <div class="stripe-input-mock" style="flex:1;">MM / YY</div>
+                <div class="stripe-input-mock" style="flex:1;">CVC</div>
+            </div>
+            
+            <span class="stripe-label" style="margin-top: 16px;">カード名義人</span>
+            <div class="stripe-input-mock">
+                <span>TARO CREATIVE</span>
+            </div>
+            
+            <button class="stripe-pay-btn" onclick="processStripePay()">支払う</button>
         </div>
     </div>
 
@@ -802,33 +881,46 @@
             document.getElementById('tippingOverlay').classList.remove('show');
             document.getElementById('amountModal').classList.remove('show');
             document.getElementById('completePopup').classList.remove('show');
+            document.getElementById('payMethodScreen').classList.remove('show');
+            document.getElementById('dmcPayScreen').classList.remove('show');
+            document.getElementById('stripeScreen').classList.remove('show');
             document.getElementById('freeAmount').value = '';
         }
 
         function selectAmount(amount) {
             selectedTippingAmount = amount;
-            showDmcPay();
+            showPayMethod();
         }
 
         function submitFreeAmount() {
             const val = document.getElementById('freeAmount').value;
             if(val && parseInt(val) > 0) {
                 selectedTippingAmount = parseInt(val);
-                showDmcPay();
+                showPayMethod();
             } else {
                 alert("金額を正しく入力してください");
             }
         }
 
-        function showDmcPay() {
+        function showPayMethod() {
             document.getElementById('amountModal').classList.remove('show');
+            document.getElementById('payMethodScreen').classList.add('show');
+        }
+
+        function closePayMethod() {
+            document.getElementById('payMethodScreen').classList.remove('show');
             document.getElementById('tippingOverlay').classList.remove('show');
+        }
+
+        function showDmcPay() {
+            document.getElementById('payMethodScreen').classList.remove('show');
             document.getElementById('dmcAmountText').innerText = selectedTippingAmount.toLocaleString() + '円';
             document.getElementById('dmcPayScreen').classList.add('show');
         }
 
         function closeDmcPay() {
             document.getElementById('dmcPayScreen').classList.remove('show');
+            document.getElementById('payMethodScreen').classList.add('show');
         }
 
         function processDmcPay() {
@@ -845,6 +937,35 @@
                 document.getElementById('completePopup').classList.add('show');
                 setTimeout(() => { spawnConfetti(); }, 100);
             }, 1000);
+        }
+
+        function startStripePay() {
+            document.getElementById('payMethodScreen').classList.remove('show');
+            document.getElementById('tippingOverlay').classList.remove('show'); // stripe is full screen covering
+            document.getElementById('stripeAmountText').innerText = '¥' + selectedTippingAmount.toLocaleString();
+            document.getElementById('stripeScreen').classList.add('show');
+        }
+
+        function closeStripe() {
+            document.getElementById('stripeScreen').classList.remove('show');
+            document.getElementById('tippingOverlay').classList.add('show');
+            document.getElementById('payMethodScreen').classList.add('show');
+        }
+
+        function processStripePay() {
+            const btn = document.querySelector('.stripe-pay-btn');
+            btn.innerText = '処理中...';
+            btn.style.opacity = '0.7';
+            btn.disabled = true;
+            setTimeout(() => {
+                btn.innerText = '支払う';
+                btn.style.opacity = '1';
+                btn.disabled = false;
+                document.getElementById('stripeScreen').classList.remove('show');
+                document.getElementById('tippingOverlay').classList.add('show');
+                document.getElementById('completePopup').classList.add('show');
+                setTimeout(() => { spawnConfetti(); }, 100);
+            }, 1500);
         }
     </script>
 <script src="nav.js"></script>
